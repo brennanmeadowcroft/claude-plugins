@@ -1,34 +1,41 @@
 ---
 name: finish-day
-description: End-of-day wrap-up — reviews completed and incomplete Todoist tasks, recaps today's calendar, reminds about transcripts (with optional n8n MCP trigger), reschedulesincomplete tasks, preps tomorrow's meeting notes in Obsidian, and updates today's daily note with a day summary. Trigger when the user says "finish my day", "wrap up today", "end of day", or invokes /finish-day.
-argument-hint: "[--daily-notes-path <path>] [--notes-path <path>] [--transcript-mcp <server-name>]"
+description: End-of-day wrap-up — reviews completed and incomplete Todoist tasks, recaps today's calendar, reminds about transcripts (with optional n8n MCP trigger), reschedules incomplete tasks, preps tomorrow's meeting notes in Obsidian, and updates today's daily note with a day summary. Trigger when the user says "finish my day", "wrap up today", "end of day", or invokes /finish-day. Must be run from the root of the Obsidian vault.
+argument-hint: "[--transcript-mcp <server-name>]"
 ---
 
 # Finish Day
 
 You are helping the user close out their workday. Review what was accomplished, handle transcripts, reschedule incomplete tasks, prep tomorrow's meeting notes, and write an honest day summary.
 
-Default paths (override with arguments):
-- Daily notes: `Daily Notes/` (e.g., `Daily Notes/2026-03-30.md`)
-- Meeting notes: `Notes/`
+## Vault Paths (relative to vault root)
 
-## Phase 0: Pre-Flight Check
+- Daily notes: `02-AreasOfResponsibility/Daily Notes/`
+- Meeting notes: `02-AreasOfResponsibility/Notes/`
 
-1. Get today's date via Bash: `date +%Y-%m-%d`. Store as TODAY. Get tomorrow's date: `date -v+1d +%Y-%m-%d` (macOS) or `date -d tomorrow +%Y-%m-%d` (Linux). Store as TOMORROW.
-2. Verify all three MCP servers (Todoist, Google Calendar, Obsidian) are reachable with lightweight calls.
-3. If any server fails, STOP and tell the user which one is unreachable with the fix command from the README.
+## Phase 0: Get Today's and Tomorrow's Dates
+
+Run via Bash:
+```bash
+echo "TODAY=$(date +%Y-%m-%d)"
+echo "TOMORROW=$(date -v+1d +%Y-%m-%d 2>/dev/null || date -d tomorrow +%Y-%m-%d)"
+```
+
+Store TODAY and TOMORROW.
 
 ## Phase 1: Gather Today's Data
 
 Run in parallel:
 
-**Completed tasks:** Call `get_completed_tasks` filtered to today. Capture task name and project.
+**Completed tasks:** Call `get_completed_tasks` on the Todoist MCP server filtered to today. Capture task name and project.
 
 **Still-open tasks:** Call `get_tasks` filtered to due today and overdue. These are tasks that weren't finished.
 
-**Today's calendar:** Call `list-events` for today. This is the record of what meetings/calls actually happened.
+**Today's calendar:** Call `list-events` on the Google Calendar MCP server for today.
 
-**Today's daily note:** Attempt `read_note` on `<daily-notes-path>/TODAY.md`. Read it if it exists — provides morning context.
+**Today's daily note:** Check for and read `02-AreasOfResponsibility/Daily Notes/TODAY.md` using the Read tool if it exists.
+
+If either MCP server is unavailable, tell the user which one and continue with whatever data is accessible.
 
 ## Phase 2: Day Review
 
@@ -38,13 +45,13 @@ Present a brief, honest review:
 
 **What You Accomplished**
 - Completed Todoist tasks (with project)
-- Calendar events that happened today (meetings, calls)
+- Calendar events that happened today
 
 **Still Open**
 - Incomplete tasks with their original due date
 
-**Day Patterns** (include if notable)
-Note anything worth acknowledging: a p1 task finished, a project milestone hit, or a day that ran long on meetings.
+**Day Patterns** (only if notable)
+A p1 task finished, a project milestone hit, or a day that ran particularly long on meetings.
 
 ---
 
@@ -63,23 +70,22 @@ If you recorded any meetings or conversations today, now is the time to download
 [ ] Saved to n8n pickup folder
 ```
 
-*If `--transcript-mcp <server-name>` was passed and that MCP server is available:*
-> I see the `<server-name>` MCP server is configured. Would you like me to trigger transcript processing now? Tell me which tool to call and I'll run it.
-> Then call the tool the user specifies on that server.
+If `--transcript-mcp <server-name>` was passed and that MCP server is available:
+> I see the `<server-name>` MCP server is configured. Would you like me to trigger transcript processing now? Tell me which tool to call and I'll run it. Then call whatever tool the user specifies.
 
-*If no transcript MCP is configured:*
-> To automate this in the future, expose your n8n webhook as an MCP server and pass `--transcript-mcp <server-name>` to this skill. See the README for details.
+If no transcript MCP is configured:
+> To automate this in the future, expose your n8n webhook as an MCP server and pass `--transcript-mcp <server-name>` to this skill.
 
 ---
 
-Options for the user:
+Options:
 1. **Done** — transcripts are handled
 2. **Skip** — no transcripts today
 3. **Remind me later** — note it in the daily note
 
 ## Phase 4: Reschedule Incomplete Tasks
 
-If there are no incomplete tasks, skip this phase.
+Skip this phase if there are no incomplete tasks.
 
 Present all incomplete tasks at once and ask the user what to do with each:
 - **Tomorrow** — update due date to TOMORROW via `update_task`
@@ -88,16 +94,16 @@ Present all incomplete tasks at once and ask the user what to do with each:
 - **Deprioritize** — set no due date or lower priority
 - **Done / Cancel** — mark complete via `complete_task`
 
-Collect all decisions first, then execute all `update_task` and `complete_task` calls together in one batch.
+Collect all decisions first, then execute all updates together in one batch.
 
 ## Phase 5: Prep Tomorrow's Meeting Notes
 
 This is what enables `/start-day` to find relevant meeting notes via date-string search tomorrow morning.
 
 1. Call `list-events` for TOMORROW to get tomorrow's calendar events.
-2. For each named recurring meeting (skip one-offs that don't have a corresponding note):
-   a. Call `search_notes` with the meeting title as the query to find the long-running note in `Notes/`
-   b. If a note is found with a confidence match: call `patch_note` to append this section to the end of the note:
+2. For each named recurring meeting (skip one-offs that clearly won't have a note):
+   a. Search for a matching note file using Glob: `02-AreasOfResponsibility/Notes/*.md`, then look for a filename that closely matches the meeting title.
+   b. If a matching note is found, use the Edit tool to append this section to the end of the file:
 
 ```markdown
 
@@ -111,8 +117,8 @@ This is what enables `/start-day` to find relevant meeting notes via date-string
 
    Replace `TOMORROW` with the actual date string (e.g., `## 2026-03-31`).
 
-   c. If no matching note is found: ask the user — "I don't see a note for '[Meeting Name]'. Want me to create one in Notes/?"
-   d. If the user confirms, use `write_note` to create `Notes/<Meeting Name>.md` with the section stub.
+   c. If no matching note is found, ask the user: "I don't see a note for '[Meeting Name]'. Want me to create one?"
+   d. If confirmed, use the Write tool to create `02-AreasOfResponsibility/Notes/<Meeting Name>.md` with the section stub above.
 
 3. Tell the user which notes were updated: "Prepped sections in: [[1:1 with Alex]], [[Team Standup]]"
 
@@ -128,9 +134,9 @@ Keep it brief — this is a preview, not a full briefing.
 
 ## Phase 7: Update Today's Daily Note
 
-Use `patch_note` to append an "End of Day" section to today's daily note. If no daily note exists, use `write_note` to create a minimal one.
+Use the Edit tool to append an "End of Day" section to `02-AreasOfResponsibility/Daily Notes/TODAY.md`. If no daily note exists, use the Write tool to create a minimal one.
 
-The section to append:
+Section to append:
 
 ```markdown
 
@@ -144,14 +150,14 @@ The section to append:
 [Rescheduled tasks and where they went — e.g., "Fix auth bug → tomorrow", "Update docs → deprioritized"]
 
 ### Reflection
-[Ask the user: "Any reflections on today you'd like to capture?" Then write their response here, or leave a placeholder if they skip.]
+[User's response to: "Any thoughts on today to capture in your notes?" — or "—" if skipped]
 ```
 
-Ask before writing the reflection: "Any thoughts on today to capture in your notes?" Include their response verbatim (or "—" if they skip).
+Ask before writing: "Any thoughts on today to capture in your notes?" Include their response verbatim, or "—" if they skip.
 
 ## Quality Notes
 
 - The day review should be honest — acknowledge what didn't happen without judgment
 - Meeting note prep (Phase 5) is the most important step for enabling tomorrow's start-day flow; don't skip it
-- The transcript reminder (Phase 3) must always be shown, even if brief
-- Batch all Todoist updates — don't call `update_task` one at a time while the user is still deciding
+- The transcript reminder (Phase 3) must always be shown
+- Batch all Todoist updates — don't send them one at a time while the user is still deciding
