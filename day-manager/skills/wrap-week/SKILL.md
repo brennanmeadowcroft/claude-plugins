@@ -2,7 +2,6 @@
 name: wrap-week
 description: Weekly retrospective — pulls completed Todoist tasks, Google Calendar events, and Obsidian daily notes from Monday through today, synthesizes a narrative weekly recap, saves it to Obsidian, and previews next week. Run on Friday afternoon or Sunday evening. Trigger when the user says "wrap up my week", "weekly recap", "weekly review", or invokes /wrap-week.
 argument-hint: "[--daily-notes-path <path>] [--weekly-recaps-path <path>]"
-allowed-tools: Bash, mcp__todoist__get_completed_tasks, mcp__todoist__get_tasks, mcp__google-calendar__list-events, mcp__google-calendar__get-current-time, mcp__obsidian__read_note, mcp__obsidian__write_note, mcp__obsidian__search_notes
 ---
 
 # Wrap Week

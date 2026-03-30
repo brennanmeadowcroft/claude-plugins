@@ -2,7 +2,6 @@
 name: finish-day
 description: End-of-day wrap-up — reviews completed and incomplete Todoist tasks, recaps today's calendar, reminds about transcripts (with optional n8n MCP trigger), reschedulesincomplete tasks, preps tomorrow's meeting notes in Obsidian, and updates today's daily note with a day summary. Trigger when the user says "finish my day", "wrap up today", "end of day", or invokes /finish-day.
 argument-hint: "[--daily-notes-path <path>] [--notes-path <path>] [--transcript-mcp <server-name>]"
-allowed-tools: Bash, mcp__todoist__get_tasks, mcp__todoist__get_completed_tasks, mcp__todoist__update_task, mcp__todoist__complete_task, mcp__google-calendar__list-events, mcp__google-calendar__get-current-time, mcp__obsidian__read_note, mcp__obsidian__write_note, mcp__obsidian__patch_note, mcp__obsidian__search_notes
 ---
 
 # Finish Day

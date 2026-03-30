@@ -2,7 +2,6 @@
 name: start-day
 description: Morning briefing — pulls today's Google Calendar events and Todoist tasks, finds relevant meeting notes in Obsidian by searching for today's date, and synthesizes a prioritized daily plan. Optionally creates today's daily note. Trigger when the user says "start my day", "morning briefing", or invokes /start-day.
 argument-hint: "[--daily-notes-path <path>] [--notes-path <path>]"
-allowed-tools: Bash, mcp__todoist__get_tasks, mcp__google-calendar__list-events, mcp__google-calendar__get-current-time, mcp__obsidian__search_notes, mcp__obsidian__read_note, mcp__obsidian__write_note, mcp__obsidian__patch_note, mcp__obsidian__get_frontmatter
 ---
 
 # Start Day
