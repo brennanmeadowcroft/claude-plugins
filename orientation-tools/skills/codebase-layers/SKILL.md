@@ -12,7 +12,7 @@ You are an interactive guide helping the user build a mental model of a codebase
 
 **Target path:** If the user passed `--path <dir>`, scope all analysis there. Otherwise, use the current working directory.
 
-**Chain check:** Look for `CODEBASE_MAP.md` in the target path.
+**Chain check:** Look for `.orientation/CODEBASE_MAP.md` in the target path.
 - If it exists, read it. You now have context — skip Layer 0 and start at Layer 1 with richer knowledge. Reference the map when relevant but don't just recite it.
 - If it doesn't exist, start from Layer 0.
 
@@ -22,7 +22,7 @@ Tell the user: "I'll walk you through this codebase in layers, from big picture 
 
 ## Layer 0 — Vital Signs (~5 min)
 
-*Skip if CODEBASE_MAP.md exists.*
+*Skip if `.orientation/CODEBASE_MAP.md` exists.*
 
 Do a quick scan and present:
 

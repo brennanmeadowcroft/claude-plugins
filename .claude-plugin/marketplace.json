@@ -26,6 +26,11 @@
       "name": "vue-tools",
       "source": "./vue-tools",
       "description": "Vue.js architecture guidance, component design patterns, and best practices"
+    },
+    {
+      "name": "orientation-tools",
+      "source": "./orientation-tools",
+      "description": "Codebase orientation skills for mapping structure, interactive exploration, task-driven learning, and health analysis before large changes"
     }
   ]
 }

@@ -1,6 +1,6 @@
 ---
 name: codebase-cartographer
-description: Automated parallel scan of a codebase that produces CODEBASE_MAP.md and ORIENTATION.md reference documents. Explores structure, domain concepts, and git history to create a comprehensive orientation package. Use when first encountering an unfamiliar codebase.
+description: Automated parallel scan of a codebase that produces CODEBASE_MAP.md and ORIENTATION.md reference documents in the .orientation/ folder. Explores structure, domain concepts, git history, and generates a dependency diagram. Use when first encountering an unfamiliar codebase.
 argument-hint: "[--path <dir>]"
 ---
 
@@ -12,13 +12,18 @@ You are mapping an unfamiliar codebase to produce reference documentation that h
 
 If the user passed `--path <dir>`, scope ALL analysis to that directory. Otherwise, use the current working directory.
 
-Store the target path — all file references in output docs should be relative to this path.
+Store:
+- `TARGET` — the target directory path
+- `BASENAME` — the basename of `TARGET` (e.g. `my-project`)
+- `TODAY` — today's date (YYYY-MM-DD)
+
+All file references in output docs should be relative to `TARGET`. All output files go to `TARGET/.orientation/`. Create that directory now if it does not exist.
 
 ## Step 2: Quick detection
 
 Before launching parallel exploration, do a fast scan to identify the tech stack. Check for:
 
-- `package.json`, `tsconfig.json` → Node.js/TypeScript
+- `package.json`, `tsconfig.json` → TypeScript/JavaScript (prefer TypeScript label if `tsconfig.json` present)
 - `Cargo.toml` → Rust
 - `go.mod` → Go
 - `pyproject.toml`, `setup.py`, `requirements.txt` → Python
@@ -28,15 +33,15 @@ Before launching parallel exploration, do a fast scan to identify the tech stack
 - `README.md`, `CLAUDE.md` → Existing documentation
 - `.github/`, `.gitlab-ci.yml` → CI/CD
 
-Note what you find — this informs the parallel exploration.
+Store the detected stack — this is used in Step 5 for diagram generation.
 
 ## Step 3: Parallel exploration
 
-Launch **3 Explore agents in parallel** (use the Agent tool with subagent_type "Explore"), each with a specific focus. Provide each agent with the target path and tech stack context from Step 2.
+Launch **3 Explore agents in parallel** (use the Agent tool with subagent_type "Explore"), each with a specific focus. Provide each agent with `TARGET` and the tech stack from Step 2.
 
 ### Agent 1 — Structure & Stack
 
-Prompt: "Explore the codebase at [target path] to map its structure. This is a [tech stack] project. Find and report:
+Prompt: "Explore the codebase at [TARGET] to map its structure. This is a [tech stack] project. Find and report:
 1. The complete directory tree (top 2-3 levels, noting purpose of each directory)
 2. Entry points (main files, route definitions, event handlers, CLI entry points)
 3. Build system and configuration (how to build, run, and test)
@@ -48,7 +53,7 @@ Be thorough — read key files, not just filenames."
 
 ### Agent 2 — Domain & Patterns
 
-Prompt: "Explore the codebase at [target path] to understand its domain and design patterns. This is a [tech stack] project. Find and report:
+Prompt: "Explore the codebase at [TARGET] to understand its domain and design patterns. This is a [tech stack] project. Find and report:
 1. Data models, types, schemas, and interfaces — what are the core domain objects?
 2. API routes or endpoints — what operations does the system expose?
 3. Business logic location — where do the 'rules' live?
@@ -75,26 +80,26 @@ Read the actual code in key files, not just filenames. Look at models, services,
 
 ### Agent 3 — History & Hotspots
 
-Prompt: "Analyze the git history of the codebase at [target path] to understand its evolution. Run these git commands and report findings:
+Prompt: "Analyze the git history of the codebase at [TARGET] to understand its evolution. Run these git commands and report findings:
 1. `git log --oneline -30` — recent commit messages (what's been worked on lately?)
 2. `git log --format='%aN' | sort | uniq -c | sort -rn | head -10` — top contributors
 3. `git log --since='3 months ago' --format='' --name-only | sort | uniq -c | sort -rn | head -20` — most-changed files in last 3 months (hotspots)
 4. `git log --since='1 month ago' --oneline` — last month's activity summary
 5. `git log --diff-filter=A --format='' --name-only | wc -l` vs `git ls-files | wc -l` — rough sense of codebase growth
 6. Look at recent merge commits or PR-style messages to understand current workstreams
-Scope all git commands to [target path] using `-- [target path]` where applicable.
+Scope all git commands to [TARGET] using `-- [TARGET]` where applicable.
 Summarize: What areas are actively evolving? What areas are stable? Who works on what?"
 
-## Step 4: Synthesize into CODEBASE_MAP.md
+## Step 4: Synthesize into `.orientation/CODEBASE_MAP.md`
 
-Combine findings from all three agents into a structured reference document. Write it to `[target path]/CODEBASE_MAP.md`.
+Combine findings from all three agents into a structured reference document. Write it to `[TARGET]/.orientation/CODEBASE_MAP.md`.
 
 Use this template:
 
 ```markdown
 # Codebase Map
 
-> Auto-generated by `/codebase-cartographer` on [date]. This is a reference document — not a substitute for reading the code.
+> Auto-generated by `/codebase-cartographer` on [TODAY]. This is a reference document — not a substitute for reading the code.
 
 ## Tech Stack
 
@@ -103,15 +108,6 @@ Use this template:
 ## Directory Structure
 
 [Annotated directory tree, 2-3 levels deep. Each directory gets a one-line purpose annotation.]
-
-```
-src/
-├── api/          — REST API route handlers
-├── models/       — Database models and domain types
-├── services/     — Business logic layer
-├── utils/        — Shared utilities
-└── index.ts      — Application entry point
-```
 
 ## Key Entry Points
 
@@ -123,7 +119,6 @@ src/
 
 | Concept | Code Location | Description |
 |---------|--------------|-------------|
-| ... | ... | ... |
 
 ## Data Flow
 
@@ -133,31 +128,21 @@ src/
 
 [Which modules depend on which. Focus on the major groupings, not every import.]
 
+[If a dependency diagram was generated in Step 5, add: "See `.orientation/dependency-graph.svg` for a generated module dependency diagram."]
+
 ## Design Patterns Identified
 
 ### GoF / Code-Level Patterns
 
-[Patterns found in how individual classes, modules, and functions are structured]
-
 | Pattern | Where Used | Example | How to Extend |
 |---------|-----------|---------|---------------|
-| Factory | `src/services/factory.ts` | `createHandler(type)` returns typed handler instances | Add a new case to the factory switch |
-| Observer | `src/events/emitter.ts` | Components subscribe to domain events via `on()` | Register a new event listener |
-| ... | ... | ... | ... |
 
 ### Application Architecture Patterns
 
-[Patterns found in how the application is organized — its layers, boundaries, and data flow]
-
 | Pattern | Where Used | Example | How to Extend |
 |---------|-----------|---------|---------------|
-| Repository | `src/data/userRepo.ts` | Data access behind `find()`, `save()` interfaces | Create a new repo implementing the base interface |
-| Service Layer | `src/services/` | Business logic separated from handlers/controllers | Add a new service class for new domain operations |
-| ... | ... | ... | ... |
 
-Only list patterns actually found in the code — don't force-fit. For each pattern, note:
-- The **canonical example** (best file to read to understand how it's used here)
-- **How to extend it** (what you'd do to add new behavior following this pattern)
+Only list patterns actually found in the code. For each, note the canonical example and how to extend it.
 
 ## Naming Conventions & Code Style
 
@@ -169,23 +154,60 @@ Only list patterns actually found in the code — don't force-fit. For each patt
 
 ## Key Files Quick Reference
 
-[Table of the most important files someone new should read]
-
 | File | Why It Matters |
 |------|---------------|
-| ... | ... |
 ```
 
-## Step 5: Synthesize into ORIENTATION.md
+**Note:** Write CODEBASE_MAP.md now with a placeholder in the Internal Dependencies section: `[Dependency diagram: attempting generation — see Step 5]`. You will update this line after Step 5.
 
-Write a narrative guide to `[target path]/ORIENTATION.md`.
+## Step 5: Attempt dependency diagram generation
+
+Based on the detected stack from Step 2, attempt to generate a module dependency diagram. Output to `[TARGET]/.orientation/dependency-graph.svg`.
+
+If `dot` (Graphviz) is not available (`command -v dot` fails), skip this step entirely and set `diagram_generated=false`.
+
+Otherwise, run the appropriate command for the detected stack:
+
+**TypeScript/JS:**
+```bash
+cd [TARGET] && npx --no dependency-cruiser --include-only "^src" --output-type dot . 2>/dev/null | dot -Tsvg -o .orientation/dependency-graph.svg
+```
+If `src/` does not exist, try without the `--include-only` flag scoped to the main source directory.
+
+**Python:**
+```bash
+cd [TARGET] && pyreverse -o dot -p project . 2>/dev/null
+# pyreverse writes packages_project.dot and classes_project.dot to cwd
+dot -Tsvg packages_project.dot -o .orientation/dependency-graph.svg 2>/dev/null
+rm -f packages_project.dot classes_project.dot
+```
+
+**Go:**
+```bash
+cd [TARGET] && goda graph ./... 2>/dev/null | dot -Tsvg -o .orientation/dependency-graph.svg
+```
+
+**Other stacks:** Skip and set `diagram_generated=false`.
+
+If the command fails or produces an empty file, set `diagram_generated=false` and move on silently.
+
+If successful (`diagram_generated=true`): update the placeholder line in `.orientation/CODEBASE_MAP.md`'s Internal Dependencies section to:
+```
+See `.orientation/dependency-graph.svg` for a generated module dependency diagram.
+```
+
+If unsuccessful: remove the placeholder line from CODEBASE_MAP.md.
+
+## Step 6: Synthesize into `.orientation/ORIENTATION.md`
+
+Write a narrative guide to `[TARGET]/.orientation/ORIENTATION.md`.
 
 Use this template:
 
 ```markdown
 # Orientation Guide
 
-> Auto-generated by `/codebase-cartographer` on [date].
+> Auto-generated by `/codebase-cartographer` on [TODAY].
 
 ## What This Project Does
 
@@ -225,14 +247,38 @@ Use this template:
 
 - Run `/codebase-layers` for an interactive guided tour of specific areas
 - Run `/codebase-mikado --goal "your task"` when you're ready to trace a specific change
+- Run `/codebase-health` before starting a large feature or refactor
 ```
 
-## Step 6: Present summary
+## Step 7: Write `.orientation/README.md`
 
-After writing both documents, present a brief summary to the user:
+Write the orientation index file to `[TARGET]/.orientation/README.md`:
+
+```markdown
+# Codebase Orientation: [BASENAME] -- [TODAY]
+Orientation to the codebase providing a breakdown of the structure, architecture and relationships. See the following files for specifics.
+
+## Files
+| File | Description |
+|------|-------------|
+| CODEBASE_MAP.md | Structured reference: stack, directory layout, patterns, git hotspots |
+| ORIENTATION.md | Narrative guide: what it does, how to build/run, where to find things |
+```
+
+If `diagram_generated=true`, append a row:
+```
+| dependency-graph.svg | Module dependency diagram |
+```
+
+If `.orientation/README.md` already exists (from a prior health run), read it first and preserve any existing rows that are not being replaced. Add or update rows for CODEBASE_MAP.md, ORIENTATION.md, and optionally dependency-graph.svg — do not remove a health-report.md row if it exists.
+
+## Step 8: Present summary
+
+After writing all documents, present a brief summary to the user:
 
 1. **One-paragraph overview** of what you found
 2. **2-3 things that stand out** (unusual patterns, surprising complexity, notable design choices)
-3. **Suggest next steps**: which areas to explore deeper via `/codebase-layers`, or if they have a task, suggest `/codebase-mikado`
+3. **Diagram**: note whether a dependency diagram was generated and where to find it
+4. **Suggest next steps**: which areas to explore deeper via `/codebase-layers`, or if they have a task, suggest `/codebase-mikado`
 
 Keep the summary concise — the detailed information is in the docs.

@@ -18,12 +18,12 @@ You are helping the user learn a codebase through the lens of a specific change 
 - `--goal "add a new field to the user model"`
 
 If no goal is provided, help the user define one:
-1. Check for `CODEBASE_MAP.md` — if it exists, read it and suggest goals based on active development areas or TODOs
+1. Check for `.orientation/CODEBASE_MAP.md` — if it exists, read it and suggest goals based on active development areas or TODOs
 2. Check for TODO/FIXME comments in the codebase
 3. Check recent git history for in-progress work
 4. Ask the user: "What change would you like to make? Or I can suggest a good starter task."
 
-**Chain check:** Look for `CODEBASE_MAP.md` in the target path. If it exists, read it — use it to quickly locate relevant areas instead of searching from scratch.
+**Chain check:** Look for `.orientation/CODEBASE_MAP.md` in the target path. If it exists, read it — use it to quickly locate relevant areas instead of searching from scratch.
 
 ---
 
@@ -32,7 +32,7 @@ If no goal is provided, help the user define one:
 Based on the goal, identify the **primary file(s)** that would need to change.
 
 Search strategy:
-1. If `CODEBASE_MAP.md` exists, use the "Key Files" and "Directory Structure" sections to narrow your search
+1. If `.orientation/CODEBASE_MAP.md` exists, use the "Key Files" and "Directory Structure" sections to narrow your search
 2. Search for keywords from the goal (endpoint names, function names, model names)
 3. Grep for related strings in the codebase
 4. Check route definitions, model files, test files for relevant matches

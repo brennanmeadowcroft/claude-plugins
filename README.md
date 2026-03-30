@@ -45,9 +45,10 @@ For example:
 
 ## Plugins
 
-| Plugin | Description |
-| --- | --- |
-| [research-toolkit](research-toolkit/README.md) | Web and Youtube research agents with vector store integration |
-| [development-tools](development-workflow/README.md) | Skills and agents to support the development workflow |
-| [security-tools](security-tools/README.md) | Security review agents and dependency scanning for vulnerability detection |
-| [vue-tools](vue-tools/) | Vue.js architecture guidance, component design patterns, and best practices |
+| Plugin                                              | Description                                                                 |
+| --------------------------------------------------- | --------------------------------------------------------------------------- |
+| [research-toolkit](research-toolkit/README.md)      | Web and Youtube research agents with vector store integration               |
+| [development-tools](development-workflow/README.md) | Skills and agents to support the development workflow                       |
+| [security-tools](security-tools/README.md)          | Security review agents and dependency scanning for vulnerability detection  |
+| [vue-tools](vue-tools/)                             | Vue.js architecture guidance, component design patterns, and best practices |
+| [orientation-tools](orientation-tools/)             | Skills to help learn a codebase quickly                                     |
