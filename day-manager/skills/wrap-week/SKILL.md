@@ -7,10 +7,17 @@ description: Weekly retrospective — pulls completed Todoist tasks, Google Cale
 
 You are helping the user write a meaningful weekly retrospective. This is a narrative synthesis, not a list dump. The goal is to tell the story of the week in a way that helps the user see patterns, celebrate progress, and prepare thoughtfully for next week.
 
+## Arguments
+
+- `--daily-notes-path <path>` — override daily notes folder (default: `02-AreasOfResponsibility/Daily Notes`)
+- `--weekly-recaps-path <path>` — override weekly recaps folder (default: `02-AreasOfResponsibility/Weekly Recaps`)
+- `--areas-path <path>` — override areas of responsibility root folder (default: `02-AreasOfResponsibility`)
+
 ## Vault Paths (relative to vault root)
 
 - Daily notes: `02-AreasOfResponsibility/Daily Notes/`
 - Weekly recaps: `02-AreasOfResponsibility/Weekly Recaps/`
+- Areas of responsibility: `02-AreasOfResponsibility/` (subfolders, excluding `Daily Notes`, `Weekly Recaps`, `Notes`)
 
 ## Phase 0: Date Setup
 
@@ -78,6 +85,72 @@ Present:
 
 Ask: "Is there anything you want to set as an intention for next week?" Incorporate their answer into the recap note.
 
+## Phase 3b: Areas of Responsibility Review
+
+After the next-week preview, surface the health of your ongoing Areas of Responsibility (AORs) before closing out the week.
+
+### Step 1: Discover areas
+
+List the subfolders of the areas path (default: `02-AreasOfResponsibility/`, overridable via `--areas-path`). Exclude system folders: `Daily Notes`, `Weekly Recaps`, `Notes`. Each remaining subfolder is one AOR. Its name must match the corresponding Todoist project name exactly.
+
+If no subfolders are found (or the path doesn't exist), skip this phase and note it in the recap.
+
+### Step 2: Gather context (run in parallel)
+
+For each AOR folder:
+- Read any `.md` files in that folder to understand the area's scope and objective
+- Call `get_tasks` filtered to the matching Todoist project name to fetch all open tasks
+
+### Step 3: Synthesize health per area
+
+For each area, assess:
+- Open task count and the age of the oldest task
+- Whether any tasks are overdue or due this week
+- Themes across the open tasks (brief synthesis — what kinds of work are queued?)
+- **Project readiness signal:** If ≥5 open tasks, OR any task is >30 days old, OR tasks appear to cluster around a specific deliverable — proactively suggest spinning up a dedicated project. State your reasoning (e.g., "5 tasks around improving CI/CD pipeline — this looks like a project").
+
+### Step 4: Present and act
+
+For each area, show:
+```
+### [Area Name]
+Open tasks: X  |  Oldest: Y days old  [⚠️ if >30 days]
+Themes: [2-3 sentence synthesis]
+[💡 Suggested: Consider spinning up a project — [reason]] ← only if flagged
+```
+
+Then ask the user for their decision on each area (collect all decisions before executing):
+- **Looks good** — no action
+- **Schedule a review** → create a task in that Todoist project due next Monday: "Review [Area Name]"
+- **Spin up a project** → ask for project name → create `01-Projects/<Name>/PLAN.md` using the template below
+
+Batch all `create_task` calls together, then write any PLAN.md files.
+
+### Project stub template
+
+When creating `01-Projects/<Name>/PLAN.md`:
+
+```markdown
+---
+tags: [project]
+area: <area-name>
+started: <today>
+---
+
+# <Project Name>
+
+**Why:** <!-- What prompted this — from area tasks/themes -->
+**Goal:** <!-- Definition of done -->
+
+## Tasks
+
+<!-- Relevant tasks from [Area Name] Todoist project -->
+
+## Notes
+```
+
+---
+
 ## Phase 4: Save Weekly Recap
 
 Use the Write tool to save `02-AreasOfResponsibility/Weekly Recaps/WEEK_NUM.md`:
@@ -117,6 +190,12 @@ tags: [weekly-recap]
 ## Intentions for Next Week
 
 [User's stated intention, or "—" if skipped]
+
+## Areas Reviewed
+
+| Area | Open Tasks | Oldest Task | Action Taken |
+|------|-----------|-------------|--------------|
+| [Area Name] | X | Y days | Looks good / Scheduled review / Spun up [Project Name] |
 ```
 
 Tell the user: "Saved to `02-AreasOfResponsibility/Weekly Recaps/WEEK_NUM.md`"
