@@ -37,18 +37,7 @@ Store TODAY, WEEK_START, WEEK_END, WEEK_NUM (e.g., `2026-W14`), and WEEK_LABEL (
 
 Run in parallel:
 
-**Projects:** Use Glob to find all `PLAN.md` files in `01-Projects/`:
-```
-01-Projects/*/PLAN.md
-```
-Read each one. From each PLAN.md extract:
-- `name` and `description` from frontmatter — `description` is keyword-rich and machine-readable; use it as the project identifier
-- `due_date` from frontmatter if present — flag anything within 14 days with ⚠️
-- `## Overview` for the human-readable context (why it exists, who's involved)
-- Open (unchecked) tasks from `## Tasks` or Phase 1 task lists
-- Any milestone dates or deadlines mentioned in the body
-
-Summarize each project in 1–2 sentences. Start from `## Overview` for narrative context; surface `due_date` and open task count alongside it.
+**Projects:** Invoke the `project-index` skill to get the current project listing. This runs a hook script that extracts frontmatter from all `01-Projects/*/PLAN.md` files and returns a formatted index with names, descriptions, areas, and due dates. Use this index for the Phase 2 landscape summary — it is intentionally lightweight. Only do full PLAN.md reads for projects flagged as due within 14 days or ones the user specifically asks about.
 
 **Overdue and high-priority tasks:** Call `get_tasks` on the Todoist MCP server filtered to overdue tasks, plus p1 tasks with any due date this week. These represent carry-in work that needs attention.
 
