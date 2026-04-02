@@ -1,7 +1,6 @@
 ---
 name: start-week
 description: Weekly planning session — reviews projects for due dates and open work, guides the user to set 2–3 priorities for the week, and creates a weekly planning file that /wrap-week will fill in with the retrospective. Trigger when the user says "start my week", "plan my week", "weekly planning", or invokes /start-week. Must be run from the root of the Obsidian vault.
-argument-hint: "[--weekly-recaps-path <path>]"
 ---
 
 # Start Week

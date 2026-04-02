@@ -1,7 +1,6 @@
 ---
 name: start-day
 description: Morning briefing — pulls today's Google Calendar events, Todoist tasks, Gmail priority emails, weekly priorities, and meeting notes, then synthesizes a prioritized daily plan. Optionally creates today's daily note. Trigger when the user says "start my day", "morning briefing", or invokes /start-day. Must be run from the root of the Obsidian vault.
-argument-hint: "[--skip-daily-note]"
 ---
 
 # Start Day

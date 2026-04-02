@@ -1,6 +1,7 @@
 ---
 name: project-planner
-description: "Use this skill whenever a user wants to create a project plan, work breakdown, roadmap, or action plan for any initiative — business projects, operations, product launches, process improvements, research, or event planning. Trigger on "project plan", "work plan", "action plan", "roadmap", "work breakdown", "plan out", "help me plan", "structure this project", or when a user adds a project folder and asks what needs to be done, or wants to turn a vague idea into concrete steps. Even if they don't say "plan" — if they're describing a multi-step initiative and need help structuring it, use this skill. Also trigger when a user returns to update or refine an existing plan, e.g. "Phase 1 is done, let's plan Phase 2" or "here's what we learned, let's update the plan."
+description: >
+  Use this skill whenever a user wants to create a project plan, work breakdown, roadmap, or action plan for any initiative — business projects, operations, product launches, process improvements, research, or event planning. Trigger on "project plan", "work plan", "action plan", "roadmap", "work breakdown", "plan out", "help me plan", "structure this project", or when a user adds a project folder and asks what needs to be done, or wants to turn a vague idea into concrete steps. Even if they don't say "plan" — if they're describing a multi-step initiative and need help structuring it, use this skill. Also trigger when a user returns to update or refine an existing plan, e.g. "Phase 1 is done, let's plan Phase 2" or "here's what we learned, let's update the plan."
 ---
 
 # Project Planner

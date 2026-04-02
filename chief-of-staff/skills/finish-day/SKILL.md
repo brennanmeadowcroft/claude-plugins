@@ -1,7 +1,6 @@
 ---
 name: finish-day
 description: End-of-day wrap-up — reviews completed and incomplete Todoist tasks, triages the Todoist inbox, recaps today's calendar, reminds about transcripts (with optional n8n MCP trigger), reschedules incomplete tasks, preps tomorrow's meeting notes in Obsidian, and updates today's daily note with a day summary. Trigger when the user says "finish my day", "wrap up today", "end of day", or invokes /finish-day. Must be run from the root of the Obsidian vault.
-argument-hint: '[--transcript-mcp <server-name>]'
 ---
 
 # Finish Day
