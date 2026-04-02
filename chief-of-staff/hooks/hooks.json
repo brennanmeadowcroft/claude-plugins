@@ -1,5 +1,15 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -d \"${CLAUDE_PLUGIN_ROOT}/servers/todoist/node_modules\" ] || (cd \"${CLAUDE_PLUGIN_ROOT}/servers/todoist\" && npm install)"
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "matcher": "project-index",

@@ -1,3 +1,11 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "todoist": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/servers/todoist/server.js"],
+      "env": {
+        "TODOIST_API_TOKEN": "${TODOIST_API_TOKEN}"
+      }
+    }
+  }
 }

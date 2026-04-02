@@ -33,9 +33,9 @@
       "description": "Codebase orientation skills for mapping structure, interactive exploration, task-driven learning, and health analysis before large changes"
     },
     {
-      "name": "day-manager",
-      "source": "./day-manager",
-      "description": "Personal productivity assistant for daily and weekly planning using Todoist, Google Calendar, and Obsidian"
+      "name": "chief-of-staff",
+      "source": "./chief-of-staff",
+      "description": "AI-enabled executive assistant for daily briefings, weekly planning, project tracking, and end-of-day wrap-up using Todoist, Google Calendar, Gmail, and Obsidian"
     }
   ]
 }

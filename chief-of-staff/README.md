@@ -28,17 +28,15 @@ The daily rhythm is the foundation: `/finish-day` each evening seeds the context
 
 All skills require MCP servers for calendar, tasks, email, and vault access. Set them up once and they persist in your Claude Code user config.
 
-### 1. Todoist (Official Hosted MCP)
+### 1. Todoist
+
+Get your API token from [Todoist Settings → Integrations → Developer](https://todoist.com/app/settings/integrations/developer), then add to your shell profile (`~/.zshrc` or `~/.bashrc`):
 
 ```bash
-claude mcp add --transport http todoist https://ai.todoist.net/mcp --scope user
+export TODOIST_API_TOKEN=your_token_here
 ```
 
-Then authenticate inside Claude Code:
-```
-/mcp
-```
-Select "todoist" and complete the OAuth flow in your browser.
+The plugin bundles its own Todoist MCP server — no `claude mcp add` needed. Dependencies install automatically on the first session.
 
 ### 2. Google Calendar
 
@@ -72,59 +70,54 @@ Set up `Priority/p1` and `Priority/p2` labels in Gmail and apply them to emails 
 
 If Gmail MCP is unavailable, both skills degrade gracefully and note that email data was skipped.
 
-### 4. Obsidian (mcpvault — filesystem direct)
-
-No Obsidian plugins required. Works even when Obsidian is closed.
-
-```bash
-claude mcp add --transport stdio \
-  --env VAULT_PATH=/path/to/your/vault \
-  obsidian --scope user \
-  -- npx -y mcpvault
-```
-
-Replace `/path/to/your/vault` with the absolute path to your Obsidian vault (e.g., `/Users/yourname/Documents/MyVault`).
-
 ---
 
 ## Obsidian Vault Setup
 
-Enable the **Daily Notes** core plugin in Obsidian (Settings → Core Plugins → Daily Notes):
-- Folder: `Daily Notes`
-- Date format: `YYYY-MM-DD`
-- Template: optional — `/start-day` will create notes with its own template
+The chief of staff assumes a particular structure to the Obsidian vault.  These can be overridden the default paths with arguments if your vault uses different folder names:
+```
+/start-day --daily-notes-path "Journal/Daily" --notes-path "Meetings"
+/wrap-week --weekly-recaps-path "Reviews/Weekly"
+```
 
 The skills assume this folder structure in your vault:
 
 ```
 vault/
-├── 01-Projects/            ← one subfolder per project, each with a PLAN.md
+├── 01-Projects/            ← one subfolder per *owned/led* project, each with a PLAN.md
 │   ├── my-project/
+│   │   ├── Notes/          ← Project specific notes
+│   │   │   └── a-note.md
 │   │   └── PLAN.md
+│   ├── Watched/            ← one subfolder per *monitored* project, each with a PLAN.md
+│   │   └── my-project/
+│   │       └──PLAN.md
 │   └── ...
 ├── 02-AreasOfResponsibility/
-│   ├── Daily Notes/        ← lightweight day hubs (created by /start-day)
-│   │   ├── 2026-03-30.md
-│   │   └── ...
-│   ├── Notes/              ← your existing meeting notes (untouched)
-│   │   ├── 1:1 with Alex.md
-│   │   ├── Team Standup.md
-│   │   └── ...
-│   └── Weekly Recaps/      ← narrative weekly summaries (created by /wrap-week)
-│       ├── 2026-W13.md
-│       └── ...
-└── Watched/                ← project tracker docs (created by /project-tracker)
-    └── some-project/
-        └── PLAN.md
+    ├── Daily Notes/        ← lightweight day hubs (created by /start-day)
+    │   ├── 2026-03-30.md
+    │   └── ...
+    ├── Notes/              ← your existing meeting notes (untouched)
+    │   ├── 1:1 with Alex.md
+    │   ├── Team Standup.md
+    │   └── ...
+    └── Weekly Recaps/      ← narrative weekly summaries (created by /wrap-week)
+        ├── 2026-W13.md
+        └── ...
 ```
 
-Your existing `Notes/` folder is never modified except to append new date sections by `/finish-day`. No content is moved or duplicated.
+### Daily Notes
+Enable the **Daily Notes** core plugin in Obsidian (Settings → Core Plugins → Daily Notes):
+- Folder: `Daily Notes`
+- Date format: `YYYY-MM-DD`
+- Template: optional — `/start-day` will create notes with its own template
 
-Override the default paths with arguments if your vault uses different folder names:
-```
-/start-day --daily-notes-path "Journal/Daily" --notes-path "Meetings"
-/wrap-week --weekly-recaps-path "Reviews/Weekly"
-```
+
+### Notes
+The `Notes/` is where meeting notes are maintained. Files in this folder are never modified except to append new date sections for recurring meetings by `/finish-day`. No content is moved or duplicated.
+
+### Projects
+Every projects has its own folder with at least a `PLAN.md` file that contains the plan overview.  Notes specific to the project can be contained within a `Notes/` folder in the project.  Projects that are of interest but not being directly led by the user go into sub-folders within `Watched/`.
 
 ---
 
@@ -132,32 +125,8 @@ Override the default paths with arguments if your vault uses different folder na
 
 By default, `/finish-day` shows a checklist reminder to download transcripts and drop them in your n8n pickup folder.
 
-To automate the trigger, expose your n8n webhook as a single-tool MCP server. A minimal implementation using the MCP SDK:
+If connected with an MCP server, processing can be automatically triggered by passing the server name to finish-day:
 
-```javascript
-// n8n-mcp/index.js
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-
-const server = new McpServer({ name: "n8n", version: "1.0.0" });
-
-server.tool("trigger_transcript_processing", "Trigger n8n transcript workflow", {}, async () => {
-  await fetch(process.env.N8N_WEBHOOK_URL, { method: "POST" });
-  return { content: [{ type: "text", text: "Transcript processing triggered." }] };
-});
-
-await server.connect(new StdioServerTransport());
-```
-
-Register it:
-```bash
-claude mcp add --transport stdio \
-  --env N8N_WEBHOOK_URL=https://your-n8n-instance/webhook/transcripts \
-  n8n --scope user \
-  -- node /path/to/n8n-mcp/index.js
-```
-
-Then pass the server name to finish-day:
 ```
 /finish-day --transcript-mcp n8n
 ```
@@ -166,15 +135,15 @@ Then pass the server name to finish-day:
 
 ## Skills Reference
 
-| Skill | Description | When to use |
-|---|---|---|
-| `/start-week` | Set 2–3 weekly priorities, review projects for deadlines, create weekly planning file | Monday morning |
-| `/start-day` | Morning briefing with priority emails, weekly priorities, calendar, tasks, and meeting notes | Each morning before starting work |
-| `/finish-day` | Day close-out: priority email triage, brain dump, reschedule tasks, transcript reminder, prep tomorrow's notes | Each evening before logging off |
-| `/wrap-week` | Mon–Sun narrative recap saved to Obsidian, fills in the weekly planning file, reviews areas of responsibility | Friday afternoon or Sunday evening |
-| `/project-index` | Fast lookup of all active projects — names, descriptions, areas, due dates from PLAN.md frontmatter | On demand, or automatically by other skills |
-| `/project-planner` | Turn a new initiative into a structured, phased plan with objectives, tasks, and exit criteria | When starting or updating a project you own |
-| `/project-tracker` | Lightweight tracking doc for a project owned by someone on your team | When you need to follow a report's project during 1:1s |
+| Skill              | Description                                                                                                    | When to use                                            |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `/start-week`      | Set 2–3 weekly priorities, review projects for deadlines, create weekly planning file                          | Monday morning                                         |
+| `/start-day`       | Morning briefing with priority emails, weekly priorities, calendar, tasks, and meeting notes                   | Each morning before starting work                      |
+| `/finish-day`      | Day close-out: priority email triage, brain dump, reschedule tasks, transcript reminder, prep tomorrow's notes | Each evening before logging off                        |
+| `/wrap-week`       | Mon–Sun narrative recap saved to Obsidian, fills in the weekly planning file, reviews areas of responsibility  | Friday afternoon or Sunday evening                     |
+| `/project-index`   | Fast lookup of all active projects — names, descriptions, areas, due dates from PLAN.md frontmatter            | On demand, or automatically by other skills            |
+| `/project-planner` | Turn a new initiative into a structured, phased plan with objectives, tasks, and exit criteria                 | When starting or updating a project you own            |
+| `/project-tracker` | Lightweight tracking doc for a project owned by someone on your team                                           | When you need to follow a report's project during 1:1s |
 
 ### Arguments
 
