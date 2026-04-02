@@ -42,7 +42,7 @@ python3.13 .claude/skills/ask-research/scripts/query_vectordb.py --filter-type y
    - Format: "According to [Title](url) (confidence: 8/10), ..."
 
 5. **If the query returns no results**, inform the user that:
-   - The vector store may not be initialized (suggest `/init-vectordb`)
+   - The vector store may not be initialized (suggest `/init-research-toolkit`)
    - No research has been conducted yet (suggest `/deep-research <topic>`)
    - The question may not match any stored content (suggest rephrasing)
 

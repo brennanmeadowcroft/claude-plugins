@@ -15,6 +15,29 @@ Findings should be grounded in credible sources, and you should be transparent a
 
 Follow these phases strictly:
 
+### Phase 0: Pre-Flight Tool Check
+
+Before anything else, verify that you have access to the web tools required for research:
+
+1. Attempt a `WebSearch` for a simple query (e.g., "test").
+2. If the search succeeds, proceed to Phase 1.
+3. **If WebSearch is unavailable or denied**, STOP and inform the user:
+
+> **Research cannot proceed.** The `/deep-research` skill requires WebSearch and WebFetch permissions to conduct live web research. Without these tools, research agents will fall back to trained knowledge, which defeats the purpose of this skill.
+>
+> To fix this, add the following to your project's `.claude/settings.json`:
+> ```json
+> {
+>   "permissions": {
+>     "allow": ["WebSearch", "WebFetch"]
+>   }
+> }
+> ```
+>
+> Then retry `/deep-research`.
+
+Do NOT proceed with research if web tools are unavailable. Do NOT fall back to trained knowledge.
+
 ### Phase 1: Understand the objective
 
 The user will provide their stated objective for the research. Interview the user to better understand the nuances of their objective and what they hope to achieve with this research. This will help you focus your efforts and ensure that the information you gather is relevant and actionable for their specific needs.
@@ -62,7 +85,7 @@ python3.13 -c "import chromadb; print('ok')" 2>/dev/null && echo "vectordb_ready
 ```
 
 - If the output is `vectordb_ready`: the vector store will be populated automatically during research. No action needed.
-- If the output is `vectordb_missing`: inform the user that `/ask-research` won't be available for this session, and suggest running `/init-vectordb` first if they want semantic follow-up queries. Then continue with research — the vector store is optional and its absence does not block research.
+- If the output is `vectordb_missing`: inform the user that `/ask-research` won't be available for this session, and suggest running `/init-research-toolkit` first if they want semantic follow-up queries. Then continue with research — the vector store is optional and its absence does not block research.
 
 ### Phase 2: Scope & Decompose
 
@@ -83,7 +106,7 @@ Each agent will return results that include:
 
 After agents complete, read `web-results.json` and `youtube-results.json` to review all findings and identify gaps. Because entries are keyed by URL, agents can also read these files to avoid re-researching sources already covered.
 
-The agents will also automatically save full content and analysis to the ChromaDB vector store (if initialized via `/init-vectordb`). This happens transparently — no action needed from you.
+The agents will also automatically save full content and analysis to the ChromaDB vector store (if initialized via `/init-research-toolkit`). This happens transparently — no action needed from you.
 
 Continue to iterate on your search until you can provide a comprehensive report on the topic and have achieved the research outcome.
 

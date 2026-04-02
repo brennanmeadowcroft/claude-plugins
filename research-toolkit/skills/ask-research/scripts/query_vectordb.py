@@ -8,13 +8,13 @@ import sys
 
 
 def find_project_root():
-    """Walk up from this script to find the directory containing .claude/."""
-    d = os.path.dirname(os.path.abspath(__file__))
+    """Walk up from cwd to find the directory containing .claude/."""
+    d = os.path.abspath(os.getcwd())
     while d != os.path.dirname(d):
         if os.path.isdir(os.path.join(d, ".claude")):
             return d
         d = os.path.dirname(d)
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+    return os.path.abspath(os.getcwd())
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
     if not os.path.exists(db_path):
         result = {
             "status": "error",
-            "message": "Vector store not found. Run /init-vectordb to set up the database.",
+            "message": "Vector store not found. Run /init-research-toolkit to set up the database.",
             "results": [],
         }
         print(json.dumps(result, indent=2))
@@ -43,7 +43,7 @@ def main():
     except ImportError:
         result = {
             "status": "error",
-            "message": "chromadb not installed. Run /init-vectordb to install dependencies.",
+            "message": "chromadb not installed. Run /init-research-toolkit to install dependencies.",
             "results": [],
         }
         print(json.dumps(result, indent=2))

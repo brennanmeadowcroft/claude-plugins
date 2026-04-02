@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Initialize ChromaDB vector store for research content."""
+"""Initialize the research toolkit: permissions, ChromaDB vector store, and dependencies."""
 
 import importlib
+import json
 import site
 import subprocess
 import sys
@@ -9,14 +10,55 @@ import os
 
 
 def find_project_root():
-    """Walk up from this script to find the directory containing .claude/."""
-    d = os.path.dirname(os.path.abspath(__file__))
+    """Walk up from cwd to find the directory containing .claude/."""
+    d = os.path.abspath(os.getcwd())
     while d != os.path.dirname(d):
         if os.path.isdir(os.path.join(d, ".claude")):
             return d
         d = os.path.dirname(d)
-    # Fallback: assume 4 levels up from scripts/init_vectordb.py
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+    # Fallback: use cwd
+    return os.path.abspath(os.getcwd())
+
+
+def check_permissions(project_root):
+    """Check and configure WebSearch/WebFetch permissions in .claude/settings.json."""
+    settings_path = os.path.join(project_root, ".claude", "settings.json")
+    required_tools = ["WebSearch", "WebFetch"]
+    print("Checking tool permissions...", end=" ")
+
+    # Load existing settings or start fresh
+    settings = {}
+    if os.path.exists(settings_path):
+        try:
+            with open(settings_path, "r") as f:
+                settings = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            print("WARNING: could not parse existing settings.json, skipping")
+            return False
+
+    permissions = settings.get("permissions", {})
+    allow_list = permissions.get("allow", [])
+
+    missing = [t for t in required_tools if t not in allow_list]
+
+    if not missing:
+        print(f"OK ({', '.join(required_tools)} already allowed)")
+        return True
+
+    # Add missing tools
+    allow_list.extend(missing)
+    permissions["allow"] = allow_list
+    settings["permissions"] = permissions
+
+    try:
+        with open(settings_path, "w") as f:
+            json.dump(settings, f, indent=2)
+            f.write("\n")
+        print(f"UPDATED (added {', '.join(missing)} to permissions.allow)")
+        return True
+    except IOError as e:
+        print(f"FAILED: could not write settings.json: {e}")
+        return False
 
 
 def check_python():
@@ -33,6 +75,23 @@ def check_python():
         print("FAILED")
         print("Error: python3.13 is required. Install it via: brew install python@3.13")
         return False
+
+
+def check_ytdlp():
+    """Check if yt-dlp is available."""
+    print("Checking yt-dlp...", end=" ")
+    try:
+        result = subprocess.run(
+            ["yt-dlp", "--version"],
+            capture_output=True, text=True, check=True
+        )
+        print(f"OK (v{result.stdout.strip()})")
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        print("MISSING (optional)")
+        print("  YouTube research requires yt-dlp. Install with: brew install yt-dlp")
+        # Not fatal — return True so setup continues
+        return True
 
 
 def install_chromadb():
@@ -122,7 +181,7 @@ def smoke_test(project_root):
 
 def main():
     print("=" * 50)
-    print("Vector Store Initialization")
+    print("Research Toolkit Initialization")
     print("=" * 50)
     print()
 
@@ -131,7 +190,9 @@ def main():
     print()
 
     steps = [
+        ("Permissions", lambda: check_permissions(project_root)),
         ("Python check", lambda: check_python()),
+        ("yt-dlp check", lambda: check_ytdlp()),
         ("Install chromadb", lambda: install_chromadb()),
         ("Setup .gitignore", lambda: setup_gitignore(project_root)),
         ("Smoke test", lambda: smoke_test(project_root)),
@@ -144,10 +205,14 @@ def main():
         print()
 
     print("=" * 50)
-    print("Vector store initialized successfully!")
+    print("Research toolkit initialized successfully!")
+    print()
+    print("Configured:")
+    print("  - WebSearch and WebFetch permissions auto-granted")
+    print("  - ChromaDB vector store ready")
     print()
     print("Next steps:")
-    print("  - Run /deep-research to populate the vector store")
+    print("  - Run /deep-research to start researching")
     print("  - Run /ask-research <question> to query stored content")
     print("=" * 50)
 

@@ -8,6 +8,25 @@ Research memory is saved across all research projects *within a project* so foll
 
 **This plugin requires `yt-dlp` to be installed for YouTube transcription**
 
+## Permissions Setup
+
+The research agents require `WebSearch` and `WebFetch` tool permissions. Without these, research will not proceed (agents will refuse to fall back to trained knowledge).
+
+To auto-grant these permissions at the project level, add the following to your project's `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch"
+    ]
+  }
+}
+```
+
+This prevents repeated permission prompts during research sessions. These settings are project-scoped — they only apply when working in the project where `.claude/settings.json` is configured.
+
 ## Installation
 1. Add the marketplace to Claude using the instructions in the project README
 2. Add the plugin to claude code with `/plugin install research-toolkit@brennanmeadowcroft/claude-plugins`
@@ -27,7 +46,7 @@ It's also possible to install this within a codebase or repo so it's always avai
 ```
 
 ## Bootstrapping
-After installing, run `/init_vectordb` to set up the vector database within the project. This creates a `.research-memory/` folder that contains the local vector database. The first research request will also check if installed and notify if it's not set up.
+After installing, run `/init-research-toolkit` to set up permissions and the vector database within the project. This configures WebSearch/WebFetch permissions in `.claude/settings.json` and creates a `.research-memory/` folder for the local vector database.
 
 ## Usage
 ### Research
@@ -48,7 +67,7 @@ The skill queries the vector store and returns a result with citations
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `/deep-research`        | Researches according to an objective and returns a markdown report                                                          |
 | `/ask-research`         | Queries the local vector store for additional questions                                                                     |
-| `/init-vectordb`        | Initializes the research memory and installs ChromaDB                                                                       |
+| `/init-research-toolkit` | Configures permissions, installs ChromaDB, and sets up the vector store                                                    |
 | `/save-research-result` | Used by the research analyst agents, it saves each result to the research memory. **Not intended to be called by the user** |
 | `/transcribe-youtube`   | Transcribes YouTube videos using yt-dlp — no API keys needed.                                                               |
 
