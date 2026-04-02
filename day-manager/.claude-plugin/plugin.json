@@ -1,6 +1,0 @@
-{
-  "name": "day-manager",
-  "description": "Personal productivity assistant for daily and weekly planning using Todoist, Google Calendar, and Obsidian",
-  "version": "1.0.0",
-  "author": { "name": "Brennan" }
-}

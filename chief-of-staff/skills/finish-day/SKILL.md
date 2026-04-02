@@ -48,21 +48,50 @@ Run in parallel:
 
 **Today's daily note:** Check for and read `02-AreasOfResponsibility/Daily Notes/TODAY.md` using the Read tool if it exists.
 
-If either MCP server is unavailable, tell the user which one and continue with whatever data is accessible.
+**Gmail — priority emails:** Call the Gmail MCP server to search for unread emails with high-priority labels. Use the query:
 
-## Phase 1b: Brain Dump
+```
+label:Priority/p1 OR label:Priority/p2
+```
+
+(Adjust the exact tool name to match your Gmail MCP server.) For each email capture: subject, sender, date received, and any visible snippet or body. If unavailable, skip and note it.
+
+If any MCP server is unavailable, tell the user which one and continue with whatever data is accessible.
+
+## Phase 2: Surface Priority Emails
+
+If any Priority/p1 or Priority/p2 emails were found, present them before the brain dump:
+
+---
+
+**Priority Emails Needing Your Attention**
+
+For each email, one compact entry:
+
+- **[Subject]** — from [Sender] · [Received]
+  [1–2 sentence summary]
+  **Action needed:** [Concrete decision or task the user is responsible for]
+
+List p1 emails first. Ask: "Do any of these need a Todoist task created?" If yes, create them in `#Inbox` via `create_task` and confirm.
+
+---
+
+If no priority emails were found, skip this section entirely.
+
+## Phase 3: Brain Dump
 
 Before moving on, ask the user to do a quick brain dump:
 
 > "Before we close out — what's still rattling around in your head that isn't captured yet? Any tasks, ideas, follow-ups, or things you promised someone today?"
 
 Accept free-form input. For each item mentioned:
+
 - Create it as a Todoist task in `#Inbox` via `create_task` (no due date, no project — inbox triage will handle it in Phase 5)
 - Confirm what was captured: "Added to inbox: [task names]"
 
 If the user says nothing or skips, move on. Don't force it.
 
-## Phase 2: Day Review
+## Phase 4: Day Review
 
 Present a brief, honest review:
 
@@ -82,7 +111,7 @@ A p1 task finished, a project milestone hit, or a day that ran particularly long
 
 ---
 
-## Phase 3: Transcript Reminder
+## Phase 5: Transcript Reminder
 
 ALWAYS present this step. Never skip it.
 
@@ -113,7 +142,7 @@ Options:
 2. **Skip** — no transcripts today
 3. **Remind me later** — note it in the daily note
 
-## Phase 4: Reschedule Incomplete Tasks
+## Phase 6: Reschedule Incomplete Tasks
 
 Skip this phase if there are no incomplete tasks.
 
@@ -127,7 +156,7 @@ Present all incomplete tasks at once and ask the user what to do with each:
 
 Collect all decisions first, then execute all updates together in one batch.
 
-## Phase 5: Inbox Triage
+## Phase 7: Inbox Triage
 
 Skip this phase if there are no tasks in #Inbox.
 
@@ -139,7 +168,7 @@ Present all inbox tasks grouped by any obvious themes. For each task, ask the us
 
 Present all inbox tasks at once and collect all decisions before executing. Batch all Todoist updates together. The goal is zero inbox by the end of this phase — prompt the user if they're leaving tasks unactioned.
 
-## Phase 6: Prep Tomorrow's Meeting Notes
+## Phase 8: Prep Tomorrow's Meeting Notes
 
 This is what enables `/start-day` to find relevant meeting notes via date-string search tomorrow morning.
 
@@ -188,7 +217,7 @@ This is what enables `/start-day` to find relevant meeting notes via date-string
 
 3. Tell the user which notes were updated or created: "Prepped sections in: [[1:1 with Alex]], [[Team Standup]]. Created new note: [[Product Review 2026-03-31]]."
 
-## Phase 7: Tomorrow Preview (optional)
+## Phase 9: Tomorrow Preview (optional)
 
 Ask: "Want a quick look at what's lined up for tomorrow?"
 
@@ -199,7 +228,7 @@ If yes, present:
 
 Keep it brief — this is a preview, not a full briefing.
 
-## Phase 8: Update Today's Daily Note
+## Phase 10: Update Today's Daily Note
 
 Use the Edit tool to append an "End of Day" section to `02-AreasOfResponsibility/Daily Notes/TODAY.md`. If no daily note exists, use the Write tool to create a minimal one.
 

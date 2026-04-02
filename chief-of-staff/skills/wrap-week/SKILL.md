@@ -22,6 +22,7 @@ You are helping the user write a meaningful weekly retrospective. This is a narr
 ## Phase 0: Date Setup
 
 Run via Bash:
+
 ```bash
 TODAY=$(date +%Y-%m-%d)
 # Day of week as number (1=Mon, 7=Sun)
@@ -79,6 +80,7 @@ If end-of-day reflections are present, synthesize the emotional arc of the week 
 2. Call `get_tasks` filtered to next week's due dates, plus any still-overdue tasks being carried forward.
 
 Present:
+
 - **Key commitments** — calendar events next week that may need prep
 - **Priorities** — top tasks due next week, especially any carried from this week
 - **Suggested focus** — given this week's patterns, what should next week's emphasis be?
@@ -98,12 +100,14 @@ If no subfolders are found (or the path doesn't exist), skip this phase and note
 ### Step 2: Gather context (run in parallel)
 
 For each AOR folder:
+
 - Read any `.md` files in that folder to understand the area's scope and objective
 - Call `get_tasks` filtered to the matching Todoist project name to fetch all open tasks
 
 ### Step 3: Synthesize health per area
 
 For each area, assess:
+
 - Open task count and the age of the oldest task
 - Whether any tasks are overdue or due this week
 - Themes across the open tasks (brief synthesis — what kinds of work are queued?)
@@ -112,6 +116,7 @@ For each area, assess:
 ### Step 4: Present and act
 
 For each area, show:
+
 ```
 ### [Area Name]
 Open tasks: X  |  Oldest: Y days old  [⚠️ if >30 days]
@@ -120,6 +125,7 @@ Themes: [2-3 sentence synthesis]
 ```
 
 Then ask the user for their decision on each area (collect all decisions before executing):
+
 - **Looks good** — no action
 - **Schedule a review** → create a task in that Todoist project due next Monday: "Review [Area Name]"
 - **Spin up a project** → ask for project name → create `01-Projects/<Name>/PLAN.md` using the template below
@@ -132,28 +138,45 @@ When creating `01-Projects/<Name>/PLAN.md`:
 
 ```markdown
 ---
-tags: [project]
+name: <Project Name>
+description: <keyword-rich summary used for machine matching — include system names, team names, business domain, the specific problem and approach. Not a generic summary.>
+due_date: <YYYY-MM-DD — omit entirely if no hard deadline>
 area: <area-name>
 started: <today>
+tags: [project]
 ---
 
 # <Project Name>
 
-**Why:** <!-- What prompted this — from area tasks/themes -->
-**Goal:** <!-- Definition of done -->
+## Overview
+
+<2–4 sentence narrative: why this project exists, who's involved, what's driving it, and any important background. Dense enough to get back up to speed before a meeting.>
 
 ## Tasks
 
-<!-- Relevant tasks from [Area Name] Todoist project -->
+- [ ] <!-- Relevant open tasks from the [Area Name] Todoist project -->
 
-## Notes
+## Updates
+
+<!-- Filled in over time as the project progresses -->
 ```
+
+After creating the stub, tell the user: "Run `/project-planner` on this project to build out the full plan with phases, objectives, and exit criteria."
 
 ---
 
 ## Phase 4: Save Weekly Recap
 
-Use the Write tool to save `02-AreasOfResponsibility/Weekly Recaps/WEEK_NUM.md`:
+The weekly recap file may already exist if `/start-week` was run at the beginning of the week. Check first:
+
+**If the file already exists** at `02-AreasOfResponsibility/Weekly Recaps/WEEK_NUM.md`:
+
+- Read it with the Read tool
+- Preserve the frontmatter, `## Priorities This Week`, and `## Key Projects This Week` sections exactly as written
+- Append or overwrite only the retrospective sections below (The Week in Review, By the Numbers, etc.)
+- Use the Edit tool to replace the placeholder `<!-- wrap-week -->` block if present, or append after the last existing section
+
+**If the file does not exist**, create it with the Write tool using the full template below.
 
 ```markdown
 ---
@@ -193,9 +216,9 @@ tags: [weekly-recap]
 
 ## Areas Reviewed
 
-| Area | Open Tasks | Oldest Task | Action Taken |
-|------|-----------|-------------|--------------|
-| [Area Name] | X | Y days | Looks good / Scheduled review / Spun up [Project Name] |
+| Area        | Open Tasks | Oldest Task | Action Taken                                           |
+| ----------- | ---------- | ----------- | ------------------------------------------------------ |
+| [Area Name] | X          | Y days      | Looks good / Scheduled review / Spun up [Project Name] |
 ```
 
 Tell the user: "Saved to `02-AreasOfResponsibility/Weekly Recaps/WEEK_NUM.md`"
