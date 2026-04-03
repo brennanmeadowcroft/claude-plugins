@@ -1,6 +1,6 @@
 ---
 name: task-general-agent
-description: "Execute a general-purpose task assigned to Claude via Todoist. Receives a task object from the cowork-monitor skill and returns a structured result. Use for tasks that don't require specialized research or scheduling."
+description: "Execute a general-purpose task assigned to Claude via Todoist. Receives a task object from the exec-monitor skill and returns a structured result. Use for tasks that don't require specialized research or scheduling."
 model: sonnet
 color: purple
 ---

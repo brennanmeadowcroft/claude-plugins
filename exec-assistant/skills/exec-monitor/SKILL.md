@@ -1,13 +1,13 @@
 ---
-name: cowork-monitor
-description: "Poll Todoist for tasks labelled @claude, dispatch specialized agents to complete them, and deliver results back. Use when running the cowork autonomous task monitor — manually or via scheduled cron. Trigger on: 'run cowork monitor', 'check for Claude tasks', 'check my assigned tasks'."
+name: exec-monitor
+description: "Poll Todoist for tasks labelled @claude, dispatch specialized agents to complete them, and deliver results back. Use when running the exec-assistant task monitor — manually or via scheduled cron. Trigger on: 'run exec monitor', 'check for Claude tasks', 'check my assigned tasks'."
 argument-hint: "[--dry-run] [--notes-path <vault-root>]"
 allowed-tools: Task, Bash, Read, Write
 ---
 
-# Cowork Task Monitor
+# Exec Assistant Task Monitor
 
-You are the cowork task monitor. Your job is to check Todoist for tasks assigned to Claude, dispatch the right agent for each task, and deliver results back — all without interrupting the user.
+You are the exec-assistant task monitor. Your job is to check Todoist for tasks assigned to Claude, dispatch the right agent for each task, and deliver results back — all without interrupting the user.
 
 ## Arguments
 
@@ -20,17 +20,17 @@ Parse these from the user's message or the arguments passed to this skill.
 
 ## Phase 0 — Verify MCP connectivity
 
-Call `get_tasks` with `filter: "today"` as a smoke test.
+Call `find-tasks` with `filter: "today"` as a smoke test.
 
 If the call fails or the todoist MCP tool is unavailable:
-- Fire a desktop notification: `osascript -e 'display notification "Todoist MCP is not available. Check TODOIST_API_TOKEN." with title "Cowork Monitor ⚠️"'`
+- Fire a desktop notification: `osascript -e 'display notification "Todoist MCP is not available. Re-run: claude mcp add --transport http todoist https://ai.todoist.net/mcp" with title "Exec Monitor ⚠️"'`
 - Print a clear error and stop. Do not proceed.
 
 ---
 
 ## Phase 1 — Stale task recovery
 
-Call `get_tasks` with `filter: "@claude-doing"`.
+Call `find-tasks` with `filter: "@claude-doing"`.
 
 For each task returned, check its `updated_at` timestamp. If the task has been in `claude-doing` state for **more than 4 hours**:
 - Update the task labels: remove `claude-doing`, add back `claude` (preserve all other labels)
@@ -40,7 +40,7 @@ For each task returned, check its `updated_at` timestamp. If the task has been i
 
 ## Phase 2 — Poll for pending tasks
 
-Call `get_tasks` with `filter: "@claude & !@claude-doing & !@claude-done"`.
+Call `find-tasks` with `filter: "@claude & !@claude-doing & !@claude-done"`.
 
 If zero tasks are returned:
 - Print: "No pending Claude tasks found."
@@ -55,7 +55,7 @@ If `--dry-run` is set:
 
 ## Phase 3 — Claim tasks
 
-For each pending task, atomically claim it by calling `update_task`:
+For each pending task, atomically claim it by calling `update-tasks`:
 - Set `labels` to the task's current labels with `claude` replaced by `claude-doing`
 - Preserve all other labels (including any `agent:*` routing labels)
 
@@ -65,7 +65,7 @@ If the update fails for a task, skip it and log a warning — do not dispatch an
 
 ## Phase 3.5 — Resolve project names
 
-Call `get_projects` to get the full project list. Build a lookup map of `project_id → project_name`.
+Call `find-projects` to get the full project list. Build a lookup map of `project_id → project_name`.
 
 For each claimed task, look up the project name using the task's `project_id`. This is used to determine the output path for research results:
 - Path: `{notes-path}/01-Projects/{project-name}/Notes/`
@@ -112,8 +112,8 @@ Dispatch tasks in parallel where possible. Collect all results before proceeding
 For each completed agent dispatch, handle the result based on `type`:
 
 **`type: "update"`**
-- Call `add_task_comment` with the result summary
-- Call `complete_task`
+- Call `add-comments` with the result summary
+- Call `complete-tasks`
 
 **`type: "research"`**
 - Determine the output file path: `{output-path}/{slug}.md` where slug is a kebab-case version of the task content (e.g., "Research MCP adoption" → `research-mcp-adoption.md`)
@@ -125,18 +125,18 @@ For each completed agent dispatch, handle the result based on `type`:
   {body}
   ```
 - Write the combined content to that file using the Write tool. Create parent directories if needed.
-- Call `add_task_comment` with: `Result saved to: {relative-vault-path}\n\n{summary}`
-- Call `complete_task`
+- Call `add-comments` with: `Result saved to: {relative-vault-path}\n\n{summary}`
+- Call `complete-tasks`
 
 **`type: "notification"`**
-- Fire desktop notification: `osascript -e 'display notification "{notification}" with title "Claude Cowork"'`
-- Call `add_task_comment` with the summary
-- Call `complete_task`
+- Fire desktop notification: `osascript -e 'display notification "{notification}" with title "Exec Assistant"'`
+- Call `add-comments` with the summary
+- Call `complete-tasks`
 
 **On agent error / unexpected result**
-- Reset the task: call `update_task` to swap `claude-doing` back to `claude` in labels
-- Call `add_task_comment` with: `Agent failed. Task reset for retry. Error: {error-details}`
-- Fire desktop notification: `osascript -e 'display notification "Task failed and was reset: {task-content}" with title "Cowork Monitor ⚠️"'`
+- Reset the task: call `update-tasks` to swap `claude-doing` back to `claude` in labels
+- Call `add-comments` with: `Agent failed. Task reset for retry. Error: {error-details}`
+- Fire desktop notification: `osascript -e 'display notification "Task failed and was reset: {task-content}" with title "Exec Monitor ⚠️"'`
 
 ---
 
@@ -144,7 +144,7 @@ For each completed agent dispatch, handle the result based on `type`:
 
 Print a summary:
 ```
-Cowork monitor run complete.
+Exec monitor run complete.
   Pending tasks found: X
   Tasks claimed: X
   Dispatched: X (research: N, schedule: N, general: N)

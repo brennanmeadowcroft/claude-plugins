@@ -40,9 +40,9 @@ Store WEEK_START (Monday), TODAY, and WEEK_NUM (e.g., `2026-W13`).
 
 Run in parallel where possible:
 
-**Completed tasks:** Call `get_completed_tasks` on the Todoist MCP server filtered from WEEK_START to TODAY. Group by project. Note the total count.
+**Completed tasks:** Call `find-completed-tasks` filtered from WEEK_START to TODAY. Group by project. Note the total count.
 
-**Incomplete/carried tasks:** Call `get_tasks` filtered to overdue. These are things that were planned but didn't happen this week.
+**Incomplete/carried tasks:** Call `find-tasks` filtered to overdue. These are things that were planned but didn't happen this week.
 
 **Calendar events:** Call `list-events` on the Google Calendar MCP server for WEEK_START through TODAY. Group by day. Note total meeting hours.
 
@@ -77,7 +77,7 @@ If end-of-day reflections are present, synthesize the emotional arc of the week 
 ## Phase 3: Next Week Preview
 
 1. Call `list-events` for next Monday through Friday.
-2. Call `get_tasks` filtered to next week's due dates, plus any still-overdue tasks being carried forward.
+2. Call `find-tasks` filtered to next week's due dates, plus any still-overdue tasks being carried forward.
 
 Present:
 
@@ -102,7 +102,7 @@ If no subfolders are found (or the path doesn't exist), skip this phase and note
 For each AOR folder:
 
 - Read any `.md` files in that folder to understand the area's scope and objective
-- Call `get_tasks` filtered to the matching Todoist project name to fetch all open tasks
+- Call `find-tasks` filtered to the matching Todoist project name to fetch all open tasks
 
 ### Step 3: Synthesize health per area
 
@@ -130,7 +130,7 @@ Then ask the user for their decision on each area (collect all decisions before 
 - **Schedule a review** → create a task in that Todoist project due next Monday: "Review [Area Name]"
 - **Spin up a project** → ask for project name → create `01-Projects/<Name>/PLAN.md` using the template below
 
-Batch all `create_task` calls together, then write any PLAN.md files.
+Batch all `add-tasks` calls together, then write any PLAN.md files.
 
 ### Project stub template
 

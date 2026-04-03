@@ -33,9 +33,9 @@ Run all of these in parallel:
 
 **Calendar:** Call `list-events` on the Google Calendar MCP server for today (midnight to midnight). For each event capture: title, start/end time, attendees, video call link if present. If unavailable, tell the user and ask them to describe their schedule manually.
 
-**Todoist — due today:** Call `get_tasks` filtered to tasks due today. For each task capture: name, project, priority (p1–p4), any due time. If Todoist MCP is unavailable, tell the user and continue without task data.
+**Todoist — due today:** Call `find-tasks` filtered to tasks due today. For each task capture: name, project, priority (p1–p4), any due time. If Todoist MCP is unavailable, tell the user and continue without task data.
 
-**Todoist — overdue:** Call `get_tasks` filtered to overdue tasks. Note how many days overdue each task is.
+**Todoist — overdue:** Call `find-tasks` filtered to overdue tasks. Note how many days overdue each task is.
 
 **Gmail — priority emails:** Call the Gmail MCP server to search for unread emails with high-priority labels. Use the query:
 ```

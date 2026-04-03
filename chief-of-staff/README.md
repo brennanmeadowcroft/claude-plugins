@@ -30,13 +30,13 @@ All skills require MCP servers for calendar, tasks, email, and vault access. Set
 
 ### 1. Todoist
 
-Get your API token from [Todoist Settings → Integrations → Developer](https://todoist.com/app/settings/integrations/developer), then add to your shell profile (`~/.zshrc` or `~/.bashrc`):
+Register the official Todoist MCP server globally in Claude Code:
 
 ```bash
-export TODOIST_API_TOKEN=your_token_here
+claude mcp add --transport http --scope global todoist https://ai.todoist.net/mcp
 ```
 
-The plugin bundles its own Todoist MCP server — no `claude mcp add` needed. Dependencies install automatically on the first session.
+Claude Code will prompt you to authenticate with Todoist the first time a tool is called.
 
 ### 2. Google Calendar
 

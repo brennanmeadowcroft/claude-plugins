@@ -38,7 +38,7 @@ Run in parallel:
 
 **Projects:** Invoke the `project-index` skill to get the current project listing. This runs a hook script that extracts frontmatter from all `01-Projects/*/PLAN.md` files and returns a formatted index with names, descriptions, areas, and due dates. Use this index for the Phase 2 landscape summary — it is intentionally lightweight. Only do full PLAN.md reads for projects flagged as due within 14 days or ones the user specifically asks about.
 
-**Overdue and high-priority tasks:** Call `get_tasks` on the Todoist MCP server filtered to overdue tasks, plus p1 tasks with any due date this week. These represent carry-in work that needs attention.
+**Overdue and high-priority tasks:** Call `find-tasks` filtered to overdue tasks, plus p1 tasks with any due date this week. These represent carry-in work that needs attention.
 
 **This week's calendar:** Call `list-events` on the Google Calendar MCP server for WEEK_START through WEEK_END. Note: heavy meeting days, key 1:1s or reviews that need prep, any deadlines embedded in event names.
 

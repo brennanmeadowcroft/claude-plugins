@@ -1,6 +1,6 @@
 ---
 name: task-research-agent
-description: "Research agent for Todoist tasks routed to research (via agent:research label or inference). Conducts multi-source web research and returns structured findings. Use when cowork-monitor dispatches a research task."
+description: "Research agent for Todoist tasks routed to research (via agent:research label or inference). Conducts multi-source web research and returns structured findings. Use when exec-monitor dispatches a research task."
 model: sonnet
 color: blue
 ---

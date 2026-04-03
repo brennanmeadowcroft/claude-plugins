@@ -37,11 +37,11 @@ Store TODAY and TOMORROW.
 
 Run in parallel:
 
-**Completed tasks:** Call `get_completed_tasks` on the Todoist MCP server filtered to today. Capture task name and project.
+**Completed tasks:** Call `find-completed-tasks` filtered to today. Capture task name and project.
 
-**Still-open tasks:** Call `get_tasks` filtered to due today and overdue. These are tasks that weren't finished.
+**Still-open tasks:** Call `find-tasks` filtered to due today and overdue. These are tasks that weren't finished.
 
-**Inbox tasks:** Call `get_tasks` filtered to project `#Inbox` (or the inbox project ID). Capture all tasks regardless of due date.
+**Inbox tasks:** Call `find-tasks` filtered to project `#Inbox` (or the inbox project ID). Capture all tasks regardless of due date.
 
 **Today's calendar:** Call `list-events` on the Google Calendar MCP server for today.
 
@@ -71,7 +71,7 @@ For each email, one compact entry:
   [1–2 sentence summary]
   **Action needed:** [Concrete decision or task the user is responsible for]
 
-List p1 emails first. Ask: "Do any of these need a Todoist task created?" If yes, create them in `#Inbox` via `create_task` and confirm.
+List p1 emails first. Ask: "Do any of these need a Todoist task created?" If yes, create them in `#Inbox` via `add-tasks` and confirm.
 
 ---
 
@@ -85,7 +85,7 @@ Before moving on, ask the user to do a quick brain dump:
 
 Accept free-form input. For each item mentioned:
 
-- Create it as a Todoist task in `#Inbox` via `create_task` (no due date, no project — inbox triage will handle it in Phase 5)
+- Create it as a Todoist task in `#Inbox` via `add-tasks` (no due date, no project — inbox triage will handle it in Phase 5)
 - Confirm what was captured: "Added to inbox: [task names]"
 
 If the user says nothing or skips, move on. Don't force it.
@@ -147,11 +147,11 @@ Skip this phase if there are no incomplete tasks.
 
 Present all incomplete tasks at once and ask the user what to do with each:
 
-- **Tomorrow** — update due date to TOMORROW via `update_task`
+- **Tomorrow** — update due date to TOMORROW via `update-tasks`
 - **Later this week** — ask for specific day
 - **Next week** — update to next Monday
 - **Deprioritize** — set no due date or lower priority
-- **Done / Cancel** — mark complete via `complete_task`
+- **Done / Cancel** — mark complete via `complete-tasks`
 
 Collect all decisions first, then execute all updates together in one batch.
 
@@ -161,9 +161,9 @@ Skip this phase if there are no tasks in #Inbox.
 
 Present all inbox tasks grouped by any obvious themes. For each task, ask the user:
 
-- **Move to project** — which project? Update via `update_task` to move it and optionally set a due date
+- **Move to project** — which project? Update via `update-tasks` to move it and optionally set a due date
 - **Schedule it** — stay in inbox but assign a due date
-- **Delete / Cancel** — mark complete or delete via `delete_task`
+- **Delete / Cancel** — mark complete via `complete-tasks` or delete via `delete-object`
 
 Present all inbox tasks at once and collect all decisions before executing. Batch all Todoist updates together. The goal is zero inbox by the end of this phase — prompt the user if they're leaving tasks unactioned.
 
@@ -223,7 +223,7 @@ Ask: "Want a quick look at what's lined up for tomorrow?"
 If yes, present:
 
 - Tomorrow's calendar events (already fetched in Phase 5)
-- Todoist tasks due tomorrow (call `get_tasks` filtered to TOMORROW)
+- Todoist tasks due tomorrow (call `find-tasks` filtered to TOMORROW)
 
 Keep it brief — this is a preview, not a full briefing.
 

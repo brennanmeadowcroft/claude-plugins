@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build-plugin.sh — packages the cowork plugin into a .plugin zip file
+# build-plugin.sh — packages the exec-assistant plugin into a .plugin zip file
 # Run from anywhere; the script resolves its own location.
 
 set -euo pipefail
@@ -14,19 +14,11 @@ echo "Source:  ${PLUGIN_DIR}"
 echo "Output:  ${OUTPUT}"
 echo ""
 
-# Remove any previous build (ignore failure — cp below will overwrite anyway)
 rm -f "${OUTPUT}" || true
 
-# Create the zip from inside the plugin directory so files sit at the root.
-# Excludes:
-#   - node_modules (installed at runtime via the SessionStart hook)
-#   - macOS metadata files
-#   - any previous .plugin builds
-#   - git internals
 (
   cd "${PLUGIN_DIR}"
   zip -r "/tmp/${PLUGIN_NAME}.plugin" . \
-    --exclude "*/node_modules/*" \
     --exclude "*/.DS_Store" \
     --exclude "*.plugin" \
     --exclude "*/.git/*"

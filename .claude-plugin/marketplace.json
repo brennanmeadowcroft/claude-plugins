@@ -38,8 +38,8 @@
       "description": "AI-enabled executive assistant for daily briefings, weekly planning, project tracking, and end-of-day wrap-up using Todoist, Google Calendar, Gmail, and Obsidian"
     },
     {
-      "name": "cowork",
-      "source": "./cowork",
+      "name": "exec-assistant",
+      "source": "./exec-assistant",
       "description": "Autonomous task monitor that polls Todoist for tasks labelled @claude and dispatches specialized agents to complete them"
     }
   ]
