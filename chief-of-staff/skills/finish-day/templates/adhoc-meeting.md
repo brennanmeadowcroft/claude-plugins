@@ -1,18 +1,11 @@
 ---
+MeetingDate: <DATE>
+Type: Meeting
 tags: [meeting, ad-hoc]
 ---
 
-# <Meeting Name> — <DATE>
+## Preamble
 
-**Objective:** <!-- Why this meeting exists -->
-**Attendees:**
+## My Topics
 
-## Notes
-
-## Decisions
-
-## Action Items
-
-- [ ]
-
-## Follow-up
+## Their Topics

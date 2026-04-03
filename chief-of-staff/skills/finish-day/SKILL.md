@@ -1,6 +1,6 @@
 ---
 name: finish-day
-description: End-of-day wrap-up — reviews completed and incomplete Todoist tasks, triages the Todoist inbox, recaps today's calendar, reminds about transcripts (with optional n8n MCP trigger), reschedules incomplete tasks, preps tomorrow's meeting notes in Obsidian, and updates today's daily note with a day summary. Trigger when the user says "finish my day", "wrap up today", "end of day", or invokes /finish-day. Must be run from the root of the Obsidian vault.
+description: End-of-day wrap-up — reviews completed and incomplete Todoist tasks, triages the Todoist inbox, recaps today's calendar and Slack activity, reminds about transcripts (with optional n8n MCP trigger), reschedules incomplete tasks, preps tomorrow's meeting notes in Obsidian, and updates today's daily note with a day summary. Trigger when the user says "finish my day", "wrap up today", "end of day", or invokes /finish-day. Must be run from the root of the Obsidian vault.
 ---
 
 # Finish Day
@@ -55,6 +55,13 @@ label:Priority/p1 OR label:Priority/p2
 
 (Adjust the exact tool name to match your Gmail MCP server.) For each email capture: subject, sender, date received, and any visible snippet or body. If unavailable, skip and note it.
 
+**Slack — today's activity:** Call the Slack MCP server to retrieve messages from today. Fetch in this order:
+1. **Direct messages** — conversations you sent or received today
+2. **Mentions** — any messages where you were @-mentioned in any channel
+3. **Active channels** — messages you posted in today
+
+For each Slack item capture: channel or DM partner, timestamp, and a brief summary of the content. Focus on messages that indicate decisions made, commitments given, or action items promised. If the Slack MCP is unavailable, skip and note it.
+
 If any MCP server is unavailable, tell the user which one and continue with whatever data is accessible.
 
 ## Phase 2: Surface Priority Emails
@@ -100,6 +107,16 @@ Present a brief, honest review:
 
 - Completed Todoist tasks (with project)
 - Calendar events that happened today
+
+**Slack Activity** (only if Slack data was retrieved)
+
+Summarize today's Slack conversations to help jog memory. Group by type:
+
+- *Decisions made* — threads or DMs where a clear decision or direction was agreed upon
+- *Commitments given* — things you said you'd do, or that someone said they'd do for you
+- *Notable conversations* — anything substantive that doesn't fit the above
+
+Keep each entry to one line. If a Slack item looks like it should become a Todoist task (a commitment with no follow-up captured yet), flag it: "This looks like an uncaptured action item — add to inbox?"
 
 **Still Open**
 

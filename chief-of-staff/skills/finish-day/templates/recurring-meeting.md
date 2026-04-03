@@ -1,20 +1,13 @@
 ---
+Type: 1:1
+MeetingDate: <DATE>
 tags: [meeting, recurring]
 ---
 
-# <Meeting Name>
-
-<!-- One-line description of the standing purpose of this meeting -->
-
 ## <DATE>
 
-### Agenda
+### My Topics
 
-### Notes
+### Their Topics
 
-### Action Items
-
-- [ ]
-
-### Carried Forward
-<!-- Items from last session that weren't resolved -->
+### For Next Time
