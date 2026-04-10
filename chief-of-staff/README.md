@@ -73,6 +73,65 @@ Set up `Priority/p1` and `Priority/p2` labels in Gmail and apply them to emails 
 
 If Gmail MCP is unavailable, both skills degrade gracefully and note that email data was skipped.
 
+### 4. Personal Context (optional)
+
+The personal context server lets skills resolve attendee names and aliases to full identities, and access your personal context files (communication style, role, preferences, etc.). The server is registered automatically when the plugin loads — no manual setup required.
+
+**Step 1:** Create the context directory and add a contacts file:
+
+```bash
+mkdir -p ~/.claude-personal/context
+```
+
+Create `~/.claude-personal/context/contacts.yaml`:
+
+```yaml
+people:
+  - name: Carolyn Smith
+    email: carolyn.smith@company.com
+    aliases: [Carolyn, Carol]
+    team: Engineering
+    notes: VP of Engineering
+
+  - name: Bob Johnson
+    email: bjohnson@company.com
+    aliases: [Bob, BJ]
+    team: Product
+```
+
+**Step 2 (optional):** Add personal context markdown files to the same directory. File names become the topic key — drop any `.md` file there and it becomes available to skills:
+
+```
+~/.claude-personal/context/
+  communication-style.md
+  role-and-responsibilities.md
+  goals-and-priorities.md
+  preferences.md
+```
+
+The server re-reads files on every call — edit your contacts or context files at any time and changes take effect immediately. If `~/.claude-personal/context/` doesn't exist or `contacts.yaml` is absent, the server starts and returns empty results gracefully.
+
+**Claude Code:** The server is registered automatically via `.mcp.json` when the plugin loads — nothing extra needed.
+
+**Claude Desktop:** Add the server manually to `~/Library/Application Support/Claude/claude_desktop_config.json`. Replace the path with wherever you cloned this repo:
+
+```json
+{
+  "mcpServers": {
+    "personal-context": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--project", "/path/to/claude-plugins/chief-of-staff/servers/personal-context",
+        "/path/to/claude-plugins/chief-of-staff/servers/personal-context/server.py"
+      ]
+    }
+  }
+}
+```
+
+Restart Claude Desktop after editing the config.
+
 ---
 
 ## Obsidian Vault Setup

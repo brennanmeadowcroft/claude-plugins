@@ -23,6 +23,8 @@ Start by figuring out which meeting the user is preparing for. You need:
    - Free-form context the user pastes in (conversation notes, email threads, etc.)
 3. **Who's in the meeting** — names for the Contacts field (Obsidian wiki-link format)
 
+If the user refers to an attendee by first name or alias only (e.g., "meeting with Carolyn"), call `find_contact` with that name before searching the calendar. If a match is found, use the canonical full name and email for all subsequent lookups. If not found, proceed with the user's input as-is.
+
 If the user already provided this information in their message, don't re-ask — just confirm what you understood and proceed. The user may not have all three; work with whatever they give you.
 
 ## Phase 1: Gather Context
@@ -38,7 +40,7 @@ If the first search returns no results, try broader or alternate terms. Meeting 
 From the calendar event, extract:
 
 - **Meeting date and time** — this becomes the MeetingDate in the note's frontmatter. The calendar is the authoritative source for the date.
-- **Attendees** — use these for the Contacts field if the user didn't specify
+- **Attendees** — use these for the Contacts field if the user didn't specify. After extracting attendees, call `lookup_contact` for each attendee email. If a match is found in your personal contacts, use the canonical `name` field for Obsidian `[[wiki links]]` and note any `team` or `notes` fields as context. If not found, use the display name from the calendar event as-is.
 - **Description / notes link** — calendar events sometimes include a Google Docs link for meeting notes. If you find one, try to fetch its content using the appropriate MCP tool.
 - **One time or recurring meeting** - this affects how you search for existing notes later. Recurring meetings often have a year-based note (e.g., "Standup - 2026.md") while one-time meetings typically have a single note named after the meeting (e.g., "Q2 Planning.md").
 - **1:1 or group meeting** - this affects how you search for existing notes and Slack messages later. 1:1 meetings will typically be named after the two participants (e.g., "Brennan / Alice") while group meetings have more thematic names (e.g., "Product Sync").
