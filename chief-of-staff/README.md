@@ -111,7 +111,13 @@ people:
 
 The server re-reads files on every call — edit your contacts or context files at any time and changes take effect immediately. If `~/.claude-personal/context/` doesn't exist or `contacts.yaml` is absent, the server starts and returns empty results gracefully.
 
-**Claude Code:** The server is registered automatically via `.mcp.json` when the plugin loads — nothing extra needed.
+**Claude Code:** Register the server manually after installing the plugin. Replace `1.0.0` with your installed version (check `~/.claude/plugins/cache/bmeadowcroft-plugins/chief-of-staff/` to confirm):
+
+```bash
+PLUGIN_PATH="$HOME/.claude/plugins/cache/bmeadowcroft-plugins/chief-of-staff/1.0.0/servers/personal-context"
+claude mcp add --transport stdio --scope user personal-context \
+  -- uv run --project "$PLUGIN_PATH" "$PLUGIN_PATH/server.py"
+```
 
 **Claude Desktop:** Add the server manually to `~/Library/Application Support/Claude/claude_desktop_config.json`. Replace the path with wherever you cloned this repo:
 

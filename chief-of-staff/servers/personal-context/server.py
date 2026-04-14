@@ -20,7 +20,10 @@ mcp = FastMCP("personal-context")
 def _load_contacts() -> list[dict]:
     contacts_file = CONFIG_DIR / "contacts.yaml"
     if not contacts_file.exists():
-        return []
+        raise FileNotFoundError(
+            f"contacts.yaml not found at {contacts_file}. "
+            "Create it at ~/.claude-personal/context/contacts.yaml — see the chief-of-staff README for the expected format."
+        )
     with contacts_file.open() as f:
         data = yaml.safe_load(f) or {}
     return data.get("people", [])
