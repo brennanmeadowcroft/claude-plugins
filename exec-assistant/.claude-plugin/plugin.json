@@ -1,6 +1,6 @@
 {
   "name": "exec-assistant",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Autonomous task monitor — polls Todoist for tasks labelled @claude and dispatches specialized agents to complete them.",
   "author": {
     "name": "Brennan Meadowcroft"
