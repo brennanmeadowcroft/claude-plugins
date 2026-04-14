@@ -95,6 +95,14 @@ This is especially valuable when the user provides minimal context — email thr
 
 Check the current week's planning file at `02-AreasOfResponsibility/Weekly Recaps/` (the most recent `YYYY-WNN.md` file). If it exists, extract the priorities section. This provides context about what the user is focused on this week, which helps identify which agenda items matter most and surfaces relevant work that might not be in Todoist or the plan.
 
+### CheckWithContact Tasks
+
+This subsection only runs for **1:1 meetings**. After resolving the attendee's full name via `find_contact` in Phase 0, query Todoist for tasks marked with the `@CheckWithContact` label that contain the attendee's first name in the task content (formatted as `[{first name}] {content}`).
+
+Use `find-tasks` with filter: `@CheckWithContact & search: {first_name}` where `first_name` is the first name extracted from the canonical contact name resolved in Phase 0. These tasks represent talking points or items the user wants to check on with this specific person.
+
+Collect these tasks separately from other Todoist tasks for later classification.
+
 ### User-Provided Context
 
 Parse any notes, conversation excerpts, or bullet points the user provided. These often contain the most current information — things that haven't made it into Todoist or the plan yet.
@@ -109,6 +117,8 @@ Go through every piece of information gathered and classify each item into one o
 
 **Pending work** — Implementation tasks that don't need individual meeting discussion but the group should know exist. Signals: unchecked tasks in the plan that aren't blocked by a decision, Todoist tasks with no particular urgency. These get rolled up under a parent bullet.
 
+**Talking points** — Items from CheckWithContact tasks (1:1 meetings only). These are topics the user wants to discuss or check on with this person. They're distinct from the four main categories and appear in a dedicated section.
+
 **Open question** — Strategic or process questions where the gap is acknowledged but there may not be a clear decision to make yet. Signals: "we don't know how to," "need to figure out," "no clear approach." Discussion starters at the end.
 
 ## Phase 3: Build the Agenda
@@ -117,16 +127,24 @@ Structure the agenda under `### My Topics` following these rules:
 
 **Ordering:**
 
-1. Status updates (quick, builds shared context for the decisions)
-2. Decisions (the meat of the meeting)
-3. Pending work (rolled up, informational)
-4. Open questions (discussion starters at the end)
+1. Talking points (1:1 meetings only, if any CheckWithContact items exist)
+2. Status updates (quick, builds shared context for the decisions)
+3. Decisions (the meat of the meeting)
+4. Pending work (rolled up, informational)
+5. Open questions (discussion starters at the end)
 
 **Formatting:**
 
 - Top-level bullet = short topic label, plain text, no bold or other markdown formatting
 - Indented sub-bullet (one tab) = one sentence of context explaining why it matters or what the ask is
 - Sub-sub-bullets (two tabs) for items grouped under a parent like "Work that is still pending"
+
+**Talking points (CheckWithContact items):** Group CheckWithContact tasks under a top-level bullet called "Check-ins with {Name}" (where {Name} is the attendee's name). For each task, remove the `[{Name}]` prefix from the task content and list it as a sub-bullet. Example:
+```
+- Check-ins with Alice Smith
+	- Review Q2 project timeline
+	- Discuss capacity for new initiative
+```
 
 **Grouping pending work:** If there are 3+ pending implementation tasks, roll them up under a single top-level bullet called "Work that is still pending" with each task as a sub-bullet. If there are only 1-2, they can stand alone.
 
