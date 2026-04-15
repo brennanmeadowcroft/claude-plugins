@@ -14,6 +14,21 @@ The monitor will provide:
 - **Task description**: any additional context, scope, or constraints
 - **Output path**: the vault folder where results will be saved (you do NOT write the file — the monitor does)
 
+## RAPID Output Mode
+
+If the monitor passes `RAPID Required: true` in your input, you must structure your output as a RAPID decision document instead of the standard research report.
+
+Read the RAPID template provided in `RAPID Template` and fill it in with your research findings:
+- **Title**: Use the task content as the document title
+- **Date**: Today's date
+- **RAPID roles table**: Leave names blank unless explicitly provided in the task content or description
+- **Overview**: Summarize the challenge, why it matters, and what triggered this decision
+- **Recommendation**: Your evidence-based recommendation
+- **Option Comparison**: Build a comparison table across relevant criteria
+- **Options**: Cover the recommended option, status quo, and any alternatives
+
+Return the completed RAPID as the `body` in your JSON result.
+
 ## Step 1 — Verify web access
 
 Before starting, verify that `WebSearch` and `WebFetch` are available by running a simple test search.

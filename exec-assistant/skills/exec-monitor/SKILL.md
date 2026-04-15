@@ -2,7 +2,7 @@
 name: exec-monitor
 description: "Poll Todoist for tasks labelled @claude, dispatch specialized agents to complete them, and deliver results back. Use when running the exec-assistant task monitor — manually or via scheduled cron. Trigger on: 'run exec monitor', 'check for Claude tasks', 'check my assigned tasks'."
 argument-hint: "[--dry-run] [--notes-path <vault-root>]"
-allowed-tools: Task, Bash, Read, Write
+allowed-tools: Task, Bash, Read, Write, Skill
 ---
 
 # Exec Assistant Task Monitor
@@ -77,6 +77,31 @@ Store the resolved output path with each task for use in Phase 4 and Phase 5.
 
 ---
 
+## Phase 3.6 — Check for deep-research availability
+
+Attempt to determine if the `deep-research` skill is available by checking if the `research-toolkit` plugin is installed. You can test this with:
+
+```bash
+ls ~/.claude/plugins/research-toolkit/skills/deep-research/SKILL.md 2>/dev/null && echo "available" || echo "unavailable"
+```
+
+Set a session flag `deep_research_available` to `true` or `false` based on the result. This flag is used in Phase 4 to route research tasks.
+
+---
+
+## Phase 3.75 — Detect RAPID requirements
+
+For each claimed task, check whether the task content or description indicates a RAPID decision document is required. Look for explicit indicators like:
+- "RAPID", "decision doc", "decision document", "rapid framework", "recommend approve perform"
+- The phrase "requires a RAPID" or "create a RAPID"
+
+If a RAPID is required:
+- Set a flag `rapid_required: true` on the task context
+- Read the RAPID template from `templates/RAPID.md` (relative to this skill file, located at `exec-assistant/skills/exec-monitor/templates/RAPID.md`)
+- Store the template content with the task context for use in Phase 4
+
+---
+
 ## Phase 4 — Select and dispatch agents
 
 For each claimed task, determine which agent to use:
@@ -89,7 +114,20 @@ For each claimed task, determine which agent to use:
    - Scheduling indicators: contains words like "schedule", "book", "set up a meeting", "calendar", "reschedule", "block time", "remind" → use `task-schedule-agent`
    - Unclear or general → use `task-general-agent`
 
-**Dispatch each task** using the Task tool with the appropriate agent. Pass:
+**Dispatch each task:**
+
+For research tasks (`task-research-agent` would normally handle these):
+- **If `deep_research_available` is true**: Use the `Skill` tool to invoke `deep-research` with the task content and description as the argument (format: `"{task.content}: {task.description}"`). Collect the output and format it as a research result. Then return:
+  ```json
+  {
+    "type": "research",
+    "summary": "Deep research completed on: {task.content}",
+    "body": "{full output from deep-research skill}"
+  }
+  ```
+- **If `deep_research_available` is false**: Use the Task tool to dispatch `task-research-agent` as normal.
+
+For other tasks (schedule, general), use the Task tool with the appropriate agent. Pass:
 ```
 Task content: {task.content}
 Task description: {task.description}
@@ -97,6 +135,8 @@ Task ID: {task.id}
 Project: {project-name}
 Output path (if research): {resolved-output-path}
 Labels: {task.labels}
+RAPID Required: {rapid_required | false}
+RAPID Template: {rapid_template_content | ""}
 
 Complete this task and return a JSON result in this exact format:
 {
@@ -106,6 +146,8 @@ Complete this task and return a JSON result in this exact format:
   "notification": "short message for desktop notification (only for type=notification)"
 }
 ```
+
+If `RAPID Required` is true, the agent should use the RAPID template as the structure for its output instead of the standard research findings format. Fill in all sections of the RAPID with the research findings. Leave names blank unless provided in the task content or description.
 
 Dispatch tasks in parallel where possible. Collect all results before proceeding to Phase 5.
 

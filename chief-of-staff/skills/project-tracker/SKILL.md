@@ -11,31 +11,31 @@ This is intentionally minimal. The user isn't driving this project — they're k
 
 ## What you're creating
 
-A markdown file with YAML frontmatter and two sections:
+A markdown file based on the `templates/watched-project.md` template, with YAML frontmatter and sections for tracking a team member's project during 1:1s:
 
 ```markdown
 ---
-owner: <name of the person doing the work>
-due_date: <target date if known, otherwise leave blank>
 project_name: <short name for the project>
+owner: <name of the person doing the work>
+todoist_project: <TODOIST_PROJECT_NAME>
+collaborators: [<full name>, <full name>]
+due_date: <target date if known, otherwise leave blank>
 description: <a rich, keyword-specific summary of what the project is — see below>
 ---
 
-## Overview
-
-<A short narrative paragraph giving context about the project: why it exists, who's involved, what's driving it, and any important background. This is what the user reads to get back up to speed before a 1:1.>
+## Objective
 
 ## Updates
 ```
 
-That's it. No phases, no work breakdowns, no milestones. Just enough to jog the user's memory. The Updates section starts empty — the user will fill it in themselves during future 1:1s.
+This is intentionally minimal. The user isn't driving this project — they're keeping track of it. The goal is to capture just enough context that they can have an informed conversation about it weeks or months from now. The Updates section starts empty — the user will fill it in themselves during future 1:1s.
 
-### The difference between `description` and Overview
+### The difference between `description` and Objective
 
 These serve different audiences:
 
 - **`description`** (frontmatter) is for machines. It's a keyword-rich line used to match this project against meeting transcripts and other inputs, without loading the full file. It should read like a dense search snippet.
-- **`## Overview`** is for the human. It's a short narrative paragraph that gives the reader enough context to walk into a 1:1 and have a productive conversation. It can include motivation, background, who's involved, and why the timeline matters.
+- **`## Objective`** is for the human. It's a short narrative or bullet list that gives the reader enough context to walk into a 1:1 and have a productive conversation. It can include motivation, background, who's involved, and why the timeline matters.
 
 ### About the `description` field
 
@@ -53,24 +53,38 @@ Ask the user enough to write a description at this level of specificity. If they
 
 ## How to gather the information
 
-Ask the user a few short questions to fill in the template. You need three things:
+Ask the user a few short questions to fill in the template. You need four things:
 
 1. **Who owns this?** — The team member's full name (first and last). Teams often have multiple people with the same first name, so always ask for the full name if the user only gives a first name.
-2. **What's the project?** — A short name and enough context to write both the `description` and the Overview. Push for concrete details: system names, locations, teams involved, the specific problem or approach, why it matters. See "About the `description` field" above.
+2. **What's the project?** — A short name and enough context to write both the `description` and the Objective. Push for concrete details: system names, locations, teams involved, the specific problem or approach, why it matters. See "About the `description` field" above.
 3. **Any deadline?** — Optional. If the user doesn't know, leave `due_date` blank in the frontmatter.
+4. **Who are the collaborators?** — Ask for the names of anyone else involved or who the user wants to track alongside this project. Use the `mcp__personal-context__lookup_contact` or `mcp__personal-context__find_contact` MCP tool to look up each name and confirm the full name. If the MCP is unavailable, just use the name as provided. Always store full names.
 
 If the user already provided some of this in their initial message, don't re-ask — just confirm what you understood and fill in any gaps. Keep the conversation short; this should feel like a 30-second intake, not an interview.
 
 Do NOT ask about current status, recent progress, or blockers. The Updates section is left empty on creation — the user will populate it over time during 1:1s.
 
+## Creating the Todoist project
+
+Before saving the file, create a Todoist project:
+
+- Use the `create-project` MCP tool to create a project with:
+  - `name`: The project name (same as used for the folder)
+  - `parent_id`: Look up the `#Watched` project using `find-projects` and use its ID
+- If the Todoist MCP is unavailable, skip this step and leave `todoist_project` blank
+- Save the created project name to the `todoist_project` frontmatter field
+
 ## Saving the file
 
-Save inside the `Watched/` subdirectory of the user's workspace. Create a project subfolder there named after the project (lowercase, hyphens for spaces), and save the file as `PLAN.md` inside that.
+Save to the correct path within the user's Obsidian vault:
+- Base path: `~/Documents/Obsidian/01-Projects/Watched/` (or custom notes path if `--notes-path` is provided)
+- Create a project subfolder named after the project (lowercase, hyphens for spaces)
+- Save the file as `PLAN.md` inside that subfolder
 
 For example, if the project is called "API Migration", save to:
-`Watched/api-migration/PLAN.md`
+`~/Documents/Obsidian/01-Projects/Watched/api-migration/PLAN.md`
 
-Before saving, do a quick check that the folder name doesn't collide with something that already exists. If it does, ask the user what they'd like to name it.
+Create parent directories as needed. Before saving, do a quick check that the folder name doesn't collide with something that already exists. If it does, ask the user what they'd like to name it.
 
 ## Tone
 
