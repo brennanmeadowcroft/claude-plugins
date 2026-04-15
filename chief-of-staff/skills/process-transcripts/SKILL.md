@@ -121,9 +121,19 @@ If neither search yields a result, skip this meeting and report:
 
 For each meeting (or the explicit `--note-file` / `--transcript-file` pair), generate the meeting summary.
 
-Read both files:
-1. The transcript file
-2. The existing meeting note (for agenda context — the notes the user took before/during)
+**Step 1: Read the transcript file** using the Read tool.
+
+**Step 2: Read the meeting note.**
+
+- **Recurring meetings:** Extract only the target date's section using Bash — do NOT read the full note file, as it accumulates past meetings and would send irrelevant history to the model:
+
+  ```bash
+  bash "${CLAUDE_PLUGIN_ROOT}/skills/process-transcripts/scripts/extract-note-section.sh" "{absolute-path-to-note-file}" "{YYYY-MM-DD}"
+  ```
+
+  Save the output as `extracted_notes`. This will be used both as the meeting notes context for the summary prompt and as the `old_string` in Phase 4. If the script exits with an error (section not found), fall back to reading the full note file with the Read tool and warn the user.
+
+- **Ad-hoc meetings:** Read the full note file with the Read tool and save the contents as `extracted_notes`. Ad-hoc notes contain only one meeting's worth of content so there is no need to extract a section.
 
 Then generate a structured summary using the following prompt:
 
@@ -239,9 +249,10 @@ Then generate a structured summary using the following prompt:
 
 ### Recurring meetings
 
-The `## {MEETING_DATE}` section already exists in the note (created by `/meeting-prep`). Replace only the content of that date's section — from the `## YYYY-MM-DD` heading up to (but not including) the next `## ` heading. All other date sections must remain intact.
+The `## {MEETING_DATE}` section already exists in the note (created by `/meeting-prep`). Use the Edit tool to replace it in-place with the `summary` string from the JSON output.
 
-Use the Edit tool to replace the matched block in-place with the `summary` string from the JSON output.
+- Use `extracted_notes` from Phase 3 as the `old_string` — it is the exact content of the date section and does not require re-reading the file.
+- All other date sections remain intact.
 
 ### Ad-hoc meetings
 
@@ -251,16 +262,40 @@ Use the Edit tool.
 
 ---
 
-## Phase 5: Create Todoist Tasks
+## Phase 5: Review and Approve Action Items
 
-For each item in the `action_items` array, call `create-task` with:
+Before creating any Todoist tasks, present the full list of action items to the user for review.
+
+Format them as a numbered list so the user can refer to them by number:
+
+```
+### Action Items — Review Before Adding to Todoist
+
+1. **Task text** (due: YYYY-MM-DD or "no due date")
+   > Detail / reasoning
+
+2. **Task text** (due: ...)
+   > Detail / reasoning
+```
+
+Then ask:
+
+> Which of these should I add to Todoist? You can say "all", "none", give specific numbers (e.g. "1, 3"), or say "skip N" to exclude specific ones.
+
+Wait for the user's response. Parse it to determine which items to create:
+- "all" → create every item
+- "none" → skip all, proceed to Phase 6
+- "1, 3" or "1 and 3" → create only those numbered items
+- "skip 2" or "all except 2" → create all except the excluded ones
+
+For each approved item, call `create-task` with:
 
 - `content`: the `task` string
 - `due_date`: the `due_date` value (or omit if null)
 - `project`: `#Inbox`
 - `description`: the `detail` string, followed by a blank line and then: `Source: [[{note filename without .md extension}]]`
 
-After creating all tasks, confirm to the user how many were created.
+After creating tasks, confirm to the user how many were created.
 
 ---
 
@@ -273,9 +308,9 @@ Print a summary table:
 
 | Meeting | Note | Type | Tasks Created |
 |---|---|---|---|
-| Brennan / Rob | Rob Smith - 2026.md | Recurring | 3 |
+| Brennan / Rob | Rob Smith - 2026.md | Recurring | 3 tasks added (of 4) |
 | Team Sync | — skipped: no transcript | — | — |
-| Q2 Planning | Q2 Planning.md | Ad-hoc | 1 |
+| Q2 Planning | Q2 Planning.md | Ad-hoc | 1 task added (of 1) |
 ```
 
 If any meetings were skipped due to missing notes, list them with the reason.
