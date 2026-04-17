@@ -120,11 +120,22 @@ Example:
 
 ### Weekly Reflection
 
-After presenting the recap and reflection themes, ask the user:
+After presenting the recap and reflection themes, invite the user into a short reflection conversation. Ask the questions below — not all at once as a list, but conversationally, one or two at a time. Read the room: if the user is giving rich answers, keep going; if they're brief, don't force it.
 
-> "Before we move to next week — how are you feeling about the week overall? Anything on your mind you want to get down before we move on?"
+**Prompt areas to cover (pick the most relevant 3–4 based on what's come up this week):**
 
-Accept free-form input. Record their response verbatim for inclusion in the recap file. If the user skips, record "—". This is intentionally low-pressure — a single sentence is fine.
+- **Energy & mood** — "How are you feeling coming out of this week — energized, drained, somewhere in between?"
+- **What went well / what didn't** — "What worked this week? Anything that felt like it didn't go the way you wanted?"
+- **What's exciting** — "Anything you're genuinely looking forward to or feeling good about right now?"
+- **What's bothering you** — "Anything sitting with you that you haven't fully resolved — a decision, a relationship, a nagging problem?"
+- **Ideas brewing** — "Any ideas you've been turning over in the back of your mind — projects, experiments, things you want to try?"
+- **What you need** — "Is there anything you need more or less of right now — focus time, clarity, support, rest?"
+
+Listen for items that sound like **latent priorities or projects** — things that don't have a Todoist task yet but probably should. Flag these explicitly:
+
+> "That sounds like it might be worth capturing as a project or priority — want me to note it for Phase 4, or add it to your inbox now?"
+
+Record the full exchange in the recap file under `## Weekly Reflection`. Write it as a brief structured summary (not a transcript), capturing the user's answers against each area covered. Use "—" for any area not discussed.
 
 ---
 
@@ -270,7 +281,7 @@ tags: [weekly-recap, weekly-plan]
 
 ## Weekly Reflection
 
-[User's verbatim response to "How are you feeling about the week?" — or "—" if skipped]
+[Structured summary of the reflection conversation — areas covered: energy/mood, what went well/didn't, excitement, concerns, ideas, needs. Use "—" for areas not discussed. Latent priorities or project seeds flagged here.]
 
 ## Areas Reviewed
 
