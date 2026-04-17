@@ -172,6 +172,23 @@ Collect these tasks separately from other Todoist tasks for later classification
 
 Parse any notes, conversation excerpts, or bullet points the user provided. These often contain the most current information — things that haven't made it into Todoist or the plan yet.
 
+### Project Tag Inference
+
+Using the project index injected into context (from the hook), attempt to identify which project this meeting is associated with. The project index lists each project with its display name, folder name (in backticks after `folder:`), description, area, and due date.
+
+**Matching logic (check in order):**
+
+1. If the user explicitly referenced a PLAN.md path or Todoist project name → use that project's folder name directly. Mark **HIGH** confidence.
+2. Otherwise compare the meeting title and calendar event description against each project's display name and description. A match requires ≥ 2 consecutive words (each ≥ 4 characters) from the project name appearing in the meeting title or calendar description, case-insensitive.
+
+**Confidence tiers:**
+
+- **Exactly one project matches** → `inferred_project_tag = snake_case(folder_name)`, `tag_confidence = HIGH`
+- **Two or more projects match** → `inferred_project_tag = null`, `tag_confidence = AMBIGUOUS`, store candidate list
+- **No project matches** → `inferred_project_tag = null`, `tag_confidence = NONE`
+
+**Snake_case rule:** Lowercase the folder name, replace spaces and hyphens with `_`, strip other non-alphanumeric characters.
+
 ## Phase 2: Classify Items
 
 Go through every piece of information gathered and classify each item into one of four categories:
@@ -276,6 +293,14 @@ Structure the agenda under `### My Topics` following these rules:
 
 **Keep it tight:** Each sub-bullet should be one sentence. The user will elaborate verbally — the note is a reference, not a script.
 
+### Project Tag Confirmation
+
+Before presenting the agenda, resolve the final tag to apply:
+
+- **HIGH confidence:** Append a one-liner to the agenda presentation: *"I'll tag this note as `{inferred_project_tag}` — correct?"* If the user confirms or doesn't object, proceed. If they correct it, update `inferred_project_tag` to the folder name they specify (or null if they say none).
+- **AMBIGUOUS:** Before writing the note, present a short numbered list: *"Which project is this meeting for?"* followed by each candidate tag and *"None — leave blank."* Wait for the user's selection and update `inferred_project_tag`.
+- **NONE:** Skip silently — no prompt, no tag.
+
 ### Example output
 
 ```
@@ -305,7 +330,7 @@ Structure the agenda under `### My Topics` following these rules:
 
 If a recurring note exists (e.g., `Standup - 2026.md`), insert a new date section at the **top** of the file, immediately after the YAML frontmatter closing `---`. The newest date section should always be first in the file. Use the Edit tool to insert before the first existing `## ` heading. The section should use the template from "./templates/recurring-meeting.md" with the date and agenda items filled in.
 
-If a plan was referenced, add a _snake case_ tag of the project name to the frontmatter (e.g. "Policy Peer Review Skill" becomes "policy_peer_review_skill"). The project name is based on the project folder name or todoist project name; they are both named the same.
+**Apply project tag:** If `inferred_project_tag` is non-null (after Phase 3 confirmation), write `tags: [inferred_project_tag]` in the frontmatter. If null, write `tags: []`. Treat any existing `<optional_project_name>` placeholder in the frontmatter the same as absent — always replace it.
 
 Replace `MEETING_DATE` with the date from the calendar event (or today if no event was found) in a YYYY-MM-DD format.
 
@@ -326,7 +351,7 @@ Create the file at `02-AreasOfResponsibility/Notes/{meeting name}.md` using the 
 
 Replace `MEETING_DATE` with the date from the calendar event (or today if no event was found) in a YYYY-MM-DD format.
 
-If a plan was referenced, add a _snake case_ tag of the project name to the frontmatter (e.g. "Policy Peer Review Skill" becomes "policy_peer_review_skill"). The project name is based on the project folder name or todoist project name; they are both named the same.
+**Apply project tag:** If `inferred_project_tag` is non-null (after Phase 3 confirmation), write `tags: [inferred_project_tag]` in the frontmatter. If null, write `tags: []`. Treat any existing `<PROJECT_TAG>` placeholder the same as absent — always replace it.
 
 **Note on direct report 1:1 notes:** For new recurring 1:1 notes created for direct reports, the template already includes `last_pulse_date`, `last_skill_date`, and `last_goals_date` fields. Set any triggered sections' dates to today when writing the initial file.
 

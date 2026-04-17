@@ -62,6 +62,8 @@ Run all of these in parallel:
 
 **Todoist — overdue:** Call `find-tasks` filtered to overdue tasks. Note how many days overdue each task is.
 
+**Todoist — process tasks:** Call `find-tasks` filtered to label `@Process_Task`. Capture name, project, priority (p1–p4), and due date. These are tasks where someone is waiting on you for a decision, approval, or response.
+
 **Gmail — priority emails:** Call the Gmail MCP server to search for unread emails with high-priority labels. Use the query:
 ```
 label:Priority/p1 OR label:Priority/p2 is:unread
@@ -87,7 +89,13 @@ Present the briefing in this structure:
 ### Good [morning/afternoon] — [DAY_NAME], [Full Date]
 
 **At a Glance**
-[X] calendar events · [Y] tasks due today · [Z] overdue · [N] priority emails
+[X] calendar events · [Y] tasks due today · [Z] overdue · [N] priority emails · [P] process tasks
+
+**Process Tasks** (omit section entirely if no @Process_Task tasks found)
+These are items where someone is waiting on you — decisions, approvals, or responses. You have dedicated time set aside for these today.
+
+For each task, one compact entry:
+- **[Task name]** — [project] · [due date if set] · [priority if p1 or p2]
 
 **Priority Emails** (omit section entirely if no p1/p2 emails found)
 For each Priority/p1 or Priority/p2 email, one compact entry:
@@ -165,3 +173,4 @@ If a daily note already exists, use the Edit tool to add or update only the "Mor
 - Keep the briefing scannable — headers and bullets, not paragraphs
 - Meeting note wiki-links use Obsidian format: `[[Note Name]]`
 - If no meeting notes are found for today, omit that section — it means `/finish-day` wasn't run last night
+- @Process_Task items that are due today or overdue should also appear in "Top Priorities" — the Process Tasks section surfaces them as a group, but they still count toward urgency ranking

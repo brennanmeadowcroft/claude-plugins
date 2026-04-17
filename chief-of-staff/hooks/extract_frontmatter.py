@@ -78,7 +78,7 @@ def main():
         else:
             meta.append("no deadline")
 
-        lines.append(f"\n- **{name}** · {' · '.join(meta)}")
+        lines.append(f"\n- **{name}** (folder: `{plan_file.parent.name}`) · {' · '.join(meta)}")
         if description:
             lines.append(f"  {description}")
 

@@ -153,6 +153,23 @@ For each meeting (or the explicit `--note-file` / `--transcript-file` pair), gen
 
 - **Ad-hoc meetings:** Read the full note file with the Read tool and save the contents as `extracted_notes`. Ad-hoc notes contain only one meeting's worth of content so there is no need to extract a section.
 
+**Step 2b: Check existing tags.**
+
+From `extracted_notes`, read the YAML frontmatter `tags` field:
+- If `tags` is non-empty and not a placeholder (i.e., not `[]`, not `[<PROJECT_TAG>]`, not absent) → set `existing_tag` to that value. No inference needed.
+- Otherwise → set `existing_tag = null`. Proceed to Step 2c.
+
+**Step 2c: Tag inference (only when `existing_tag` is null).**
+
+Using the project index injected into context, score each project against the transcript text. The project index lists each project with its folder name in backticks after `folder:`. For each project, count occurrences of its name words (≥ 4 characters each, split on spaces and hyphens) in the transcript text (case-insensitive).
+
+- If one project has ≥ 3 name-word hits AND scores at least 2× the next-highest scorer → `inferred_tag = snake_case(folder_name)` for that project.
+- Otherwise → `inferred_tag = null`.
+
+Set `resolved_tag = existing_tag ?? inferred_tag` (use `existing_tag` if non-null, else `inferred_tag`).
+
+**Snake_case rule:** Lowercase the folder name, replace spaces and hyphens with `_`, strip other non-alphanumeric characters.
+
 Then generate a structured summary using the following prompt:
 
 ---
@@ -181,6 +198,7 @@ Then generate a structured summary using the following prompt:
 > - `"task"`: string — the action item, self-contained with enough context to be understood standalone
 > - `"due_date"`: string or null — ISO date (YYYY-MM-DD) inferred from transcript, or null
 > - `"detail"`: string — reasoning or additional context about the action item
+> - `"is_process_task"`: boolean — true if someone is explicitly waiting on Brennan for a decision, approval, or response (i.e., Brennan is the blocker); false otherwise
 >
 > ---
 >
@@ -214,6 +232,7 @@ Then generate a structured summary using the following prompt:
 > - Must be something Brennan said he would do, look into, or decide on
 > - Include specific context in the `detail` field, referencing what was said
 > - Extract or infer due dates when mentioned
+> - Set `"is_process_task": true` when another person is explicitly waiting on Brennan for a decision, approval, or response — i.e., Brennan is the blocker. This includes commitments to respond, approve, or decide on something for someone else. Set to `false` for work Brennan is doing independently.
 >
 > **Exclude from action items:**
 > - Guidance or advice Brennan gave to the other person (that's coaching, not a task)
@@ -300,6 +319,18 @@ Keep the YAML frontmatter intact (everything up to and including the closing `--
 
 Use the Edit tool.
 
+### Frontmatter tag update (both meeting types)
+
+After writing the summary, if `resolved_tag` is non-null AND `existing_tag` was null (i.e., inference fired or a tag was derived):
+
+Use the Edit tool to update the `tags` field in the note's YAML frontmatter as a separate edit (the frontmatter is outside the date section replaced above):
+
+- If `tags: []` exists → replace with `tags: [resolved_tag]`
+- If `tags: [<PROJECT_TAG>]` exists → replace with `tags: [resolved_tag]`
+- If the `tags` field is absent → insert `tags: [resolved_tag]` on the line before the closing `---`
+
+If `resolved_tag` is null, or `existing_tag` was already set, skip this step entirely. No user prompt at any point.
+
 ---
 
 ## Phase 5: Review and Approve Action Items
@@ -311,12 +342,14 @@ Format them as a numbered list so the user can refer to them by number:
 ```
 ### Action Items — Review Before Adding to Todoist
 
-1. **Task text** (due: YYYY-MM-DD or "no due date")
+1. **Task text** (due: YYYY-MM-DD or "no due date") [Process Task]
    > Detail / reasoning
 
 2. **Task text** (due: ...)
    > Detail / reasoning
 ```
+
+Include the `[Process Task]` marker only for items where `is_process_task` is true — this shows the user which tasks will be tagged with `@Process_Task` before they approve.
 
 Then ask:
 
@@ -334,6 +367,7 @@ For each approved item, call `create-task` with:
 - `due_date`: the `due_date` value (or omit if null)
 - `project`: `#Inbox`
 - `description`: the `detail` string, followed by a blank line and then: `Source: [[{note filename without .md extension}]]`
+- `labels`: `["@Process_Task"]` if `is_process_task` is true (omit otherwise)
 
 After creating tasks, confirm to the user how many were created.
 

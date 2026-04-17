@@ -109,6 +109,7 @@ List p1 emails first. Ask: "Do any of these need a Todoist task created?" If yes
 1. Create a 1–2 sentence task description explaining the intent (what the user needs to do and why, derived from the email content).
 2. Include a Gmail link in the task description using the format `https://mail.google.com/mail/u/0/#inbox/MESSAGE_ID` where `MESSAGE_ID` is the email's message ID (request this from the Gmail MCP if available; if unavailable, note in the task that the email can be found by searching for the subject).
 3. Create the task in `#Inbox` via `add-tasks` with the description and link included.
+4. If the action needed is a decision, approval, or response that someone else is waiting on — i.e., the user is the blocker — add the label `@Process_Task` to the task.
 
 Confirm all created tasks.
 
@@ -125,6 +126,7 @@ Before moving on, ask the user to do a quick brain dump:
 Accept free-form input. For each item mentioned:
 
 - Create it as a Todoist task in `#Inbox` via `add-tasks` (no due date, no project — inbox triage will handle it in Phase 5)
+- If any item is framed as owing someone a decision, response, or approval (e.g., "I need to get back to X about Y", "I owe Z an answer on…"), add the label `@Process_Task` when creating that task.
 - Confirm what was captured: "Added to inbox: [task names]"
 
 If the user says nothing or skips, move on. Don't force it.
@@ -154,7 +156,8 @@ Keep each entry to one line. Present all Slack items at once and ask: "Do any of
 
 1. Create a task in `#Inbox` via `add-tasks` with a 1–2 sentence description explaining the commitment or action item.
 2. Include the Slack message link in the task description. Request a permalink from the Slack MCP (format: the direct link to the message/thread), or if unavailable, note the channel and timestamp so the user can find it.
-3. Wait for the user's decision on each flagged item before proceeding to the next phase.
+3. If the Slack thread represents a commitment where Brennan owes someone a decision or response — i.e., someone else is waiting on him — add the label `@Process_Task` to the task.
+4. Wait for the user's decision on each flagged item before proceeding to the next phase.
 
 Confirm all created tasks.
 

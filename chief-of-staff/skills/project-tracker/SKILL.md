@@ -99,6 +99,8 @@ Before saving the file, create a Todoist project:
 
 **First, resolve the projects path.** Check `CLAUDE.md` at vault root for a "Chief of Staff" section and read the `projects-path` value if present. If `--projects-path` was passed, it overrides the CLAUDE.md value. If neither is set, use `01-Projects`.
 
+**Generating the project tag:** Derive the `tags` value from the project folder name (the one you're about to create — lowercase, hyphens for spaces) by converting it to snake_case: lowercase everything, replace hyphens and spaces with underscores. Set this as the single tag in the frontmatter: `tags: [project_tag_here]`. Example: folder `api-migration` → tag `api_migration`.
+
 Save to the correct path within the user's Obsidian vault:
 - Base path: `<projects-path>/Watched/`
 - Create a project subfolder named after the project (lowercase, hyphens for spaces)
