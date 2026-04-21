@@ -211,7 +211,29 @@ The skill will:
 - Generate structured summaries and write them into the appropriate Obsidian notes
 - Create Todoist tasks in #Inbox for any action items
 
-After the skill completes (or if the user skips), continue to Phase 6.
+After the skill completes (or if the user skips), continue to Phase 5.5.
+
+## Phase 5.5: Update Project State
+
+After transcripts are processed, sync today's work back into the project plans.
+
+Invoke `/project-manager:update-project-state`, passing:
+
+- **Completed tasks** — the task names collected in Phase 1 (`find-completed-tasks`)
+- **Transcript summary** — the output from Phase 5 (`/exec-assistant:process-transcripts`)
+- **Brain dump items** — any project-relevant items the user mentioned in Phase 3 (decisions made, things finished, scope changes)
+
+The skill will:
+
+1. Match completed work against open PLAN.md tasks and propose what to mark done or remove
+2. Ask for a single confirmation round before writing any changes
+3. Detect if a phase just completed — and if the next phase has no task detail yet, surface that with suggested milestones and ask the user whether to plan now or defer
+
+If a phase-completion planning prompt appears, handle it in-flow: the user can invoke `/project-manager:project-planner` now, or defer. Either way, the skill returns a brief summary of changes before control passes back here.
+
+After the skill completes (or if the user skips — "no project updates today"), continue to Phase 6.
+
+---
 
 ## Phase 6: Reschedule Incomplete Tasks
 
