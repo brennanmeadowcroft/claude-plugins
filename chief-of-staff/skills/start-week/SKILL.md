@@ -69,6 +69,8 @@ Run in parallel:
 ```
 If it exists, extract "## Intentions for Next Week" and "## Carried Forward" sections to surface unfinished business.
 
+**AOR health (silent):** Invoke `/aor-review --summary` to get area-of-responsibility health flags without an interactive session. This surfaces AORs with stale tasks, high task counts, or patterns that suggest a project should spin up. Store the output for use in Phase 2 priority synthesis.
+
 **Existing weekly file:** Check if `02-AreasOfResponsibility/Weekly Recaps/WEEK_NUM.md` already exists. If it does, read it — this means start-week has already been run this week. Note this to the user and offer to update priorities rather than start fresh.
 
 If any MCP server is unavailable, note it and continue with the data that is available.
@@ -103,22 +105,51 @@ Flag any project with a deadline in the next 14 days with ⚠️.
 
 ## Phase 3: Set Weekly Priorities
 
-Ask the user directly:
+Before asking the user, synthesize 2–3 candidate priorities from the data gathered in Phases 1–2. Come with a recommendation, not a blank page.
 
-> "Given everything above — what are the **2–3 things** that would make this a successful week? These should be outcomes, not task lists."
+**Candidate priority signals to weigh:**
+- Projects with deadlines in the next 14 days (⚠️ flagged) — deadline pressure is a strong signal
+- Intentions from last week that didn't get done — carried work needs a deliberate decision
+- AOR health flags from `/aor-review --summary` — stale areas or clustering patterns that need attention
+- Overdue p1 tasks — these represent commitments already slipping
 
-Wait for their response. If they list more than 3, gently push back:
+**Present candidates with reasoning:**
+
+> "Based on what I'm seeing, here are my candidates for this week's top priorities:
+>
+> 1. **[Candidate 1]** — [1-sentence reasoning, e.g., 'deadline in 8 days, no tasks moved last week']
+> 2. **[Candidate 2]** — [1-sentence reasoning]
+> 3. **[Candidate 3]** — [1-sentence reasoning, or 'AOR flagged for 2 weeks, overdue for attention']
+>
+> What would you change? Anything to add, swap out, or reorder?"
+
+Wait for their response. Treat this as a refinement conversation, not a confirmation. If they reject a candidate, ask what should replace it. If they accept with modifications, incorporate them. If they list more than 3, gently push back:
 
 > "That's [N] things — which 3 matter most if the week gets compressed?"
 
-Once they've settled on 2–3 priorities, confirm them back:
+Once settled on 2–3 priorities, confirm them back:
 
 > "Got it. This week's priorities:
 > 1. [Priority 1]
 > 2. [Priority 2]
 > 3. [Priority 3]"
 
-Then ask: "Anything specific you want to note about approach or constraints for any of these?" Capture their answer as notes under each priority.
+**Meeting intelligence:** Now that the priorities are confirmed, invoke the `exec-assistant:ask-meetings` skill once per priority, querying for objections, concerns, or blockers raised in recent meetings. Use each priority's project tag (if known from the project index) to filter results — e.g., query: `"blockers or concerns about [Project Name]"` with `tag:[project-tag]`. Silently synthesize the results; only surface findings that are actionable (a specific concern raised, a dependency flagged, someone waiting on something). Fold any findings into the blocker prompt below rather than presenting them as a separate report.
+
+Then for each priority, ask a brief follow-up in one prompt:
+
+> "For each priority, anything to note on:
+> - Approach or constraints?
+> - Blockers that could stop progress? [If ask-meetings surfaced something specific, name it here: e.g., "In last week's review, [concern] was raised — is that still live?"]
+> - The immediate next task to move it forward?"
+
+Capture their answers as structured notes under each priority in the weekly file (constraints, blockers, next task). If they don't have an answer for a field, omit it — don't force completeness.
+
+**Time audit:** Before moving on, calculate available focused hours. Count total calendar hours this week (from Phase 1 data), subtract committed meeting time, and surface the result:
+
+> "You have roughly [N] hours available outside of meetings this week. With [M] priorities, that's about [N/M] hours per priority — does that feel realistic?"
+
+If the math is tight (less than 4 hours per priority), prompt: "The calendar is pretty full — do you want to adjust the priorities list, or are some of these shorter efforts?"
 
 ---
 
@@ -149,7 +180,7 @@ tags: [weekly-recap, weekly-plan]
 
 ## Key Projects This Week
 
-[One line per active project from Phase 2 — name, status, deadline if any]
+[One line per project directly supporting the 2–3 priorities above — name, status, deadline if any. Do NOT list all active projects; only include projects tied to a selected priority.]
 
 ---
 <!-- The sections below are filled in by /wrap-week at the end of the week -->
@@ -205,8 +236,12 @@ Before closing the session, propose dedicated focus blocks that align with the u
 
 ## Quality Notes
 
-- The goal of Phase 3 is focus, not completeness. 2–3 real priorities beat a 10-item list.
+- **The goal is strategic focus and completion, not coverage.** 2–3 real priorities that get finished beat shallow progress across 7 things. When the user tries to add more, push back: "Which 3 give you the most meaningful outcomes if the week goes sideways?"
+- **Key Projects This Week ≠ all active projects.** Only list projects directly tied to the selected priorities. The section exists to show supporting context for the focus, not to be a project inventory.
+- Come to the priority conversation with a recommendation. The user's job is judgment; the skill's job is synthesis. Don't ask a blank-page question when the data already suggests an answer.
 - Projects with approaching deadlines should get real weight in priority-setting — don't let them drop.
 - If last week's intentions carry directly into this week unchanged, flag that gently: "These look the same as last week — is that intentional, or did something block them?"
 - Keep Phase 2 brief. It's context to inform the conversation, not a report to be read in full.
+- The time audit is not a blocker — it's a mirror. If the math is tight, surface it and let the user decide. Don't adjust priorities without asking. If the math shows the priorities can't all fit, suggest rescheduling lower-urgency ones rather than padding the list.
+- Capturing blockers and next tasks for each priority is critical — a priority with no clear next action won't move.
 - The weekly file is the source of truth that `/start-day` will read all week — make the priorities crisp and actionable.

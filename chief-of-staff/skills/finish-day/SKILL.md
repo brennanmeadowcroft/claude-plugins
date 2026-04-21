@@ -131,6 +131,38 @@ Accept free-form input. For each item mentioned:
 
 If the user says nothing or skips, move on. Don't force it.
 
+## Phase 3.5: Delegation Review
+
+After the brain dump, look across what was gathered in Phases 1–3 and identify items suitable for background delegation via exec-monitor. These are **bucket-2 items** — work the EA can do while you review the result, not work that requires your judgment upfront.
+
+**Delegation candidates to surface:**
+
+- p1/p2 emails requiring a draft response (e.g., meeting reschedule requests, intro requests, status update replies, routine follow-ups where the content is clear from context)
+- Slack commitments where you owe someone a response and the drafting is the main work
+- Inbox tasks from the brain dump that are clearly "draft and send" in nature
+
+**Do NOT flag** for delegation: anything requiring strategic judgment, sensitive relationship dynamics, decisions only you can make, or creative work where you haven't yet determined the direction.
+
+If there are delegation candidates, surface them as a short list:
+
+> "These look like good candidates to route to the EA for drafting — you'd review the draft before it goes:
+>
+> 1. **Draft reply to [Sender] re: [Subject]** — [1-sentence context]
+> 2. **Draft follow-up to [Person] on [topic]** — [1-sentence context]
+>
+> Route them? [Yes, all] [Review each] [Skip]"
+
+For each item the user approves, create a Todoist task in `#Inbox` with:
+- **Title:** "Draft [action] — [Sender/Person] re: [topic]"
+- **Label:** `@claude` (so exec-monitor picks it up automatically)
+- **Description:** Include the email link (`https://mail.google.com/mail/u/0/#inbox/MESSAGE_ID` or search query), the desired action, and any relevant context (tone, key points to include). The more context, the better the draft.
+
+Confirm which tasks were created: "Queued for exec-monitor: [task names]. They'll be picked up on the next run."
+
+If nothing qualifies, skip this phase entirely — don't force it.
+
+---
+
 ## Phase 4: Day Review
 
 Present a brief, honest review:
@@ -172,7 +204,7 @@ A p1 task finished, a project milestone hit, or a day that ran particularly long
 
 ## Phase 5: Process Transcripts
 
-Run the `/secretary:process-transcripts` skill for today's meetings. Today's calendar events were already fetched in Phase 1 — pass that context so the skill does not need to re-fetch the calendar.
+Run the `/exec-assistant:process-transcripts` skill for today's meetings. Today's calendar events were already fetched in Phase 1 — pass that context so the skill does not need to re-fetch the calendar.
 
 The skill will:
 - Check `~/Nextcloud/Meeting Uploads/TODAY/` for transcript files matching today's meetings
@@ -213,7 +245,7 @@ This is what enables `/start-day` to find relevant meeting notes via date-string
 
 1. Call `list-events` for TOMORROW to get tomorrow's calendar events.
 
-2. For each calendar event, use the /secretary:meeting-prep skill to prep the notes. Provide the meeting name and the meeting date.
+2. For each calendar event, use the /exec-assistant:meeting-prep skill to prep the notes. Provide the meeting name and the meeting date.
 
    **d. All meetings get a note.** If a meeting has no note and the user declines to create one, note it explicitly: "Skipped note for '[Meeting Name]' — you'll need to create it manually if needed."
 

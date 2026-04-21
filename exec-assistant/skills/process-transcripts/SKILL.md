@@ -131,7 +131,7 @@ If found → mark as **ad-hoc**.
 ### Step 4: No note found
 
 If neither search yields a result, skip this meeting and report:
-> "No meeting note found for '{Meeting Name}' — run /secretary:meeting-prep first to create the note."
+> "No meeting note found for '{Meeting Name}' — run /exec-assistant:meeting-prep first to create the note."
 
 ---
 

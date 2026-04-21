@@ -82,11 +82,31 @@ label:Priority/p1 OR label:Priority/p2 is:unread
 
 ## Phase 2: Synthesize Morning Briefing
 
+Before presenting the briefing, synthesize a **Focus Recommendation** based on today's calendar and weekly priorities. This should be ready before the user reads anything else.
+
+Cross-reference:
+- Weekly priorities (from WEEK_NUM.md) — what are the 2–3 things that matter this week?
+- Today's calendar gaps — where are the 60+ minute uninterrupted windows?
+- Today's priority tasks — which tasks best serve the weekly priorities?
+- Meeting relevance — do any of today's meetings connect to a weekly priority? If so, surface the prior meeting note context.
+
+Form a concrete recommendation: for each meaningful focus window, say what the user should work on and why. This is not a list of options — it's a recommendation. The user can redirect it.
+
 Present the briefing in this structure:
 
 ---
 
 ### Good [morning/afternoon] — [DAY_NAME], [Full Date]
+
+**Today's Focus** ← lead with this, not at-a-glance
+Based on your weekly priorities and today's calendar:
+
+- **[Focus window 1, e.g., "9:00–11:00"]** → Work on [specific task/priority] — [1-sentence reason, e.g., "aligns with priority #1 and you have 2 unblocked tasks ready to move"]
+- **[Focus window 2 if any]** → [recommendation]
+
+[If a meeting today is relevant to a weekly priority:] "Your [Time] with [Person] connects to priority #[N] — [1 sentence of context from prior meeting notes, e.g., 'last week you were unblocked on X']"
+
+[If no clear focus windows exist:] "Today is back-to-back — the best window is [small gap]. Consider whether any meetings are optional."
 
 **At a Glance**
 [X] calendar events · [Y] tasks due today · [Z] overdue · [N] priority emails · [P] process tasks
@@ -122,10 +142,8 @@ Synthesize Todoist p1 and p2 tasks into a ranked list of 3–5 focus areas. Wher
 **Overdue Items**
 List overdue tasks grouped by how long they've been overdue. Flag anything overdue more than 3 days.
 
-**Suggested Focus Blocks** (only if there are clear calendar gaps)
-Based on gaps between events, suggest 1–3 windows for deep work. Example: "9:00–11:00 — clear before standup, good for [top priority]."
-
-If the user already has `[IT]` focus blocks scheduled, reference them here rather than suggesting new ones. Only suggest new windows if gaps exist beyond the scheduled focus blocks.
+**Focus Windows** (only if not already covered in "Today's Focus" at top)
+If `[IT]` blocks exist on the calendar, list them here. If additional unscheduled gaps exist beyond what was recommended above, note them briefly. Don't re-surface the same recommendation — this section supplements, not repeats, "Today's Focus."
 
 **Today's Meeting Notes**
 If meeting notes were found for today, list the note title and any relevant content from the today section.
@@ -169,6 +187,9 @@ If a daily note already exists, use the Edit tool to add or update only the "Mor
 ## Quality Notes
 
 - Always use the date from Bash, never infer it
+- Lead with "Today's Focus" — it's the most valuable part of the briefing. Don't bury the recommendation at the end.
+- The recommendation should be specific and opinionated: "work on X" not "you could work on X or Y." The user can override it.
+- If no weekly priorities file exists, the recommendation falls back to urgency (overdue + p1 tasks). Note that `/start-week` would make this more useful.
 - Priorities should reflect both urgency (due dates, overdue status) and importance (Todoist priority levels)
 - Keep the briefing scannable — headers and bullets, not paragraphs
 - Meeting note wiki-links use Obsidian format: `[[Note Name]]`
