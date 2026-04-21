@@ -1,6 +1,6 @@
 {
   "name": "exec-assistant",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Executive assistant layer — meeting prep, transcript processing, meeting memory, email prioritization, and autonomous Todoist @claude task dispatch.",
   "author": {
     "name": "Brennan Meadowcroft"
