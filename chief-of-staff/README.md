@@ -92,6 +92,10 @@ Each evening       → /finish-day        Reviews the day, surfaces delegation c
 As needed          → /meeting-rehearsal  Strategic coaching before high-stakes meetings: outcome framing, objection
                                          anticipation, weak spot identification. Reads the EA prep brief as input.
 
+As needed          → /think             Ad-hoc CoS conversation for any topic — trade-offs, prioritization, framing,
+                                         decisions. Loads week priorities and today's focus; can pull from project
+                                         research stores. Use when you want the CoS hat without a full workflow.
+
 Throughout week    → /aor-review        Reviews each Area of Responsibility for stagnation, overdue tasks, and patterns
                                          that suggest a project needs to spin up. Runs silently inside /wrap-week.
 
@@ -257,7 +261,7 @@ If connected with an MCP server, processing can be automatically triggered by pa
 
 ## Skills Reference
 
-These are the six skills in the chief-of-staff plugin. For EA skills (`/meeting-prep`, `/process-transcripts`, `/email-prioritization`) see the `exec-assistant` plugin. For project skills (`/project-planner`, `/project-monitor`, `/new-project`) see the `project-manager` plugin.
+These are the seven skills in the chief-of-staff plugin. For EA skills (`/meeting-prep`, `/process-transcripts`, `/email-prioritization`) see the `exec-assistant` plugin. For project skills (`/project-planner`, `/project-monitor`, `/new-project`) see the `project-manager` plugin.
 
 | Skill                  | What the CoS does                                                                                                                                    | When to use                                            |
 | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
@@ -267,6 +271,7 @@ These are the six skills in the chief-of-staff plugin. For EA skills (`/meeting-
 | `/wrap-week`           | Reads 3–4 prior weekly recaps to surface cross-week patterns before you plan. Recommends next week's priorities. Recaps this week. Creates next week's file. | Friday afternoon or Sunday evening               |
 | `/aor-review`          | Reviews each Area of Responsibility for stagnation, task age, and clustering — surfaces areas that need attention or a project spun up.              | On demand mid-week; runs silently inside `/wrap-week`  |
 | `/meeting-rehearsal`   | Coaching before high-stakes meetings: frames your win condition, surfaces likely objections, identifies weak spots, synthesizes an opening strategy. Reads the EA prep brief as input. | Before important meetings; surfaced during `/start-week` |
+| `/think`               | Ad-hoc CoS conversation for any topic. Loads week priorities and today's focus context, then coaches through trade-offs, prioritization, framing, or decisions. Can draw on project research stores when evaluating options. | Any time you want the CoS hat without a full workflow |
 
 ### Arguments
 
@@ -296,6 +301,13 @@ These are the six skills in the chief-of-staff plugin. For EA skills (`/meeting-
 - `--meeting <name>` — Meeting name or partial match (e.g., `"1:1 with Alex"`)
 - `--date <YYYY-MM-DD>` — Meeting date (defaults to soonest upcoming match)
 - `--notes-path <path>` — Override meeting notes folder (default: `02-AreasOfResponsibility/Notes`)
+
+**`/think`**
+- Free text after the command: `/think how should I handle the reorg conversation`
+- `--topic <text>` — Explicit topic (alternative to free text)
+- `--project <name>` — Scope research queries to a specific project (otherwise inferred from priorities or conversation)
+- `--weekly-recaps-path <path>` — Override weekly recaps folder (default: `02-AreasOfResponsibility/Weekly Recaps`)
+- `--daily-notes-path <path>` — Override daily notes folder (default: `02-AreasOfResponsibility/Daily Notes`)
 
 ---
 
