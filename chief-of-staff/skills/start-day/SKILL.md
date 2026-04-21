@@ -92,6 +92,11 @@ Cross-reference:
 
 Form a concrete recommendation: for each meaningful focus window, say what the user should work on and why. This is not a list of options — it's a recommendation. The user can redirect it.
 
+**Delegate quick tasks before presenting.** After synthesizing the briefing but before presenting it, scan for 1–3 quick delegations — things like updating a meeting agenda, rescheduling a stale task, or labeling an email. For each one found, fire a background agent with the relevant skill and the specific detail. Note each delegation under a **Delegated** line in Today's Focus so the user sees what's already in motion. Do not discuss these with the user — just do them and report. Example skills to delegate to:
+- `exec-assistant:meeting-prep` — if a meeting today has no agenda prepped
+- Google Calendar MCP — reschedule a conflicting event
+- Todoist reschedule — move an obviously stale overdue task
+
 Present the briefing in this structure:
 
 ---
@@ -166,7 +171,14 @@ tags: [daily-note]
 
 ## Morning Intentions
 
-[Top 3 priorities from Phase 2]
+For each weekly priority, state what movement looks like today — then list 1–2 supporting tasks under it. If a priority has no movement possible today (blocked, not yet relevant), say so in one line and skip the tasks. If a weekly priority has no tasks in Todoist this week or month, flag it explicitly:
+
+- **[Weekly Priority]** — [what "done" or "moved forward" looks like today]
+  - [supporting task]
+  - [supporting task if any]
+
+- **[Weekly Priority]** — ⚠️ No tasks in Todoist to move this forward today
+  → Review [[Projects/[Project Name]/PLAN.md]] or run /project-monitor to surface next steps
 
 ## Schedule
 
@@ -195,3 +207,6 @@ If a daily note already exists, use the Edit tool to add or update only the "Mor
 - Meeting note wiki-links use Obsidian format: `[[Note Name]]`
 - If no meeting notes are found for today, omit that section — it means `/finish-day` wasn't run last night
 - @Process_Task items that are due today or overdue should also appear in "Top Priorities" — the Process Tasks section surfaces them as a group, but they still count toward urgency ranking
+- The skill ends after Phase 3. Do not continue into task execution, rescheduling, email drafting, or acting on individual tasks raised in the briefing. If the user engages on a specific task, respond with one sentence of context and suggest they handle it after the briefing. The goal is to leave the user oriented, not to start working the list together.
+- During Phase 2, identify 1–3 quick delegations (agenda prep, reschedules, labels) and fire them as background agents before presenting the briefing. Note each under a "Delegated" line in Today's Focus so the user sees what's already in motion. Do not discuss these with the user — just do them and report.
+- If a weekly priority has no tasks due this week or this month, flag it explicitly in Morning Intentions — don't silently skip it. Surface the project plan path or suggest /project-monitor so the user knows where to look for next steps.
