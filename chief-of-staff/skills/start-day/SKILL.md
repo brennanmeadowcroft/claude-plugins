@@ -12,6 +12,7 @@ You are helping the user plan their day. Pull data from their calendar, task man
 - `--daily-notes-path <path>` — override daily notes folder (default: `02-AreasOfResponsibility/Daily Notes`)
 - `--notes-path <path>` — override meeting notes folder (default: `02-AreasOfResponsibility/Notes`)
 - `--weekly-recaps-path <path>` — override weekly recaps folder (default: `02-AreasOfResponsibility/Weekly Recaps`)
+- `--projects-path <path>` — override projects folder (default: `01-Projects`)
 
 ## Configuration
 
@@ -28,6 +29,7 @@ Example `CLAUDE.md` block:
 - daily-notes-path: Journal/Daily
 - notes-path: Meetings
 - weekly-recaps-path: Reviews/Weekly
+- projects-path: Projects
 ```
 
 ## Vault Paths (relative to vault root)
@@ -35,6 +37,7 @@ Example `CLAUDE.md` block:
 - Daily notes: resolved `daily-notes-path` (default: `02-AreasOfResponsibility/Daily Notes/`)
 - Meeting notes: resolved `notes-path` (default: `02-AreasOfResponsibility/Notes/`)
 - Weekly recaps: resolved `weekly-recaps-path` (default: `02-AreasOfResponsibility/Weekly Recaps/`)
+- Projects: resolved `projects-path` (default: `01-Projects/`)
 
 ## Phase 0: Get Today's Date
 
@@ -84,13 +87,27 @@ label:Priority/p1 OR label:Priority/p2 is:unread
 
 Before presenting the briefing, synthesize a **Focus Recommendation** based on today's calendar and weekly priorities. This should be ready before the user reads anything else.
 
+**Project status enrichment:** Before forming the recommendation, enrich each weekly priority with live project context:
+
+1. Glob `<projects-path>/*/PLAN.md` (and `<projects-path>/*/*/PLAN.md` for nested folders like `Watched/`) to collect project names and folder names. Read frontmatter only — not the full file.
+2. For each weekly priority, match it to the most relevant project by name-word and description overlap (case-insensitive). It is fine if a priority has no matching project.
+3. For each matched project, invoke `project-status` in summary mode via the Skill tool:
+   ```
+   Skill("project-status", "--summary --project \"{matched-project-name}\"")
+   ```
+   Run all project-status calls in parallel.
+4. Parse the returned `STATUS`, `NEXT_STEP`, `BLOCKERS`, `LAST_MEETING`, and `SUGGESTION` fields. Store them alongside the weekly priority.
+
+Use these enriched results as the primary input for Today's Focus and Morning Intentions — concrete project state beats a raw Todoist task list.
+
 Cross-reference:
 - Weekly priorities (from WEEK_NUM.md) — what are the 2–3 things that matter this week?
+- Project status results — what is the actual next step for each priority's project? Is anything stalled, blocked, or approaching a deadline?
 - Today's calendar gaps — where are the 60+ minute uninterrupted windows?
-- Today's priority tasks — which tasks best serve the weekly priorities?
-- Meeting relevance — do any of today's meetings connect to a weekly priority? If so, surface the prior meeting note context.
+- Today's priority Todoist tasks — which best serve the weekly priorities (use as a supplement, not the primary input)?
+- Meeting relevance — do any of today's meetings connect to a weekly priority? Weave in `LAST_MEETING` context from project-status where available.
 
-Form a concrete recommendation: for each meaningful focus window, say what the user should work on and why. This is not a list of options — it's a recommendation. The user can redirect it.
+Form a concrete recommendation: for each meaningful focus window, say what the user should work on and why — rooted in project state, not just task lists. This is not a list of options — it's a recommendation. The user can redirect it.
 
 **Delegate quick tasks before presenting.** After synthesizing the briefing but before presenting it, scan for 1–3 quick delegations — things like updating a meeting agenda, rescheduling a stale task, or labeling an email. For each one found, fire a background agent with the relevant skill and the specific detail. Note each delegation under a **Delegated** line in Today's Focus so the user sees what's already in motion. Do not discuss these with the user — just do them and report. Example skills to delegate to:
 - `exec-assistant:meeting-prep` — if a meeting today has no agenda prepped
@@ -104,14 +121,18 @@ Present the briefing in this structure:
 ### Good [morning/afternoon] — [DAY_NAME], [Full Date]
 
 **Today's Focus** ← lead with this, not at-a-glance
-Based on your weekly priorities and today's calendar:
+Based on your weekly priorities and project status:
 
-- **[Focus window 1, e.g., "9:00–11:00"]** → Work on [specific task/priority] — [1-sentence reason, e.g., "aligns with priority #1 and you have 2 unblocked tasks ready to move"]
-- **[Focus window 2 if any]** → [recommendation]
+- **[Focus window 1, e.g., "9:00–11:00"]** → [Priority name]: [NEXT_STEP from project-status, or specific Todoist task if no project match] — [1-sentence reason grounded in project state, e.g., "project is on-track and this is the next planned step" or "project is stalled — this unblocks the next phase"]
+- **[Focus window 2 if any]** → [same pattern]
 
-[If a meeting today is relevant to a weekly priority:] "Your [Time] with [Person] connects to priority #[N] — [1 sentence of context from prior meeting notes, e.g., 'last week you were unblocked on X']"
+[If project-status returned a BLOCKER for a priority:] "⚠️ [Priority name] is blocked: [BLOCKER]. Your [meeting today / this week] with [Person] may be the right moment to resolve this."
+
+[If a meeting today is relevant to a weekly priority:] "Your [Time] with [Person] connects to priority #[N] — [LAST_MEETING context from project-status if available, otherwise 1 sentence from prior meeting notes]"
 
 [If no clear focus windows exist:] "Today is back-to-back — the best window is [small gap]. Consider whether any meetings are optional."
+
+[If any priority's project has STATUS=stalled or needs-attention:] "⚠️ [Project name] hasn't had activity in [N] days — consider addressing this in your next available window."
 
 **At a Glance**
 [X] calendar events · [Y] tasks due today · [Z] overdue · [N] priority emails · [P] process tasks
@@ -171,14 +192,15 @@ tags: [daily-note]
 
 ## Morning Intentions
 
-For each weekly priority, state what movement looks like today — then list 1–2 supporting tasks under it. If a priority has no movement possible today (blocked, not yet relevant), say so in one line and skip the tasks. If a weekly priority has no tasks in Todoist this week or month, flag it explicitly:
+For each weekly priority, state what movement looks like today using the project-status enrichment from Phase 2. Use `NEXT_STEP` as the primary supporting action. If no project match was found, fall back to the first relevant Todoist task.
 
-- **[Weekly Priority]** — [what "done" or "moved forward" looks like today]
-  - [supporting task]
-  - [supporting task if any]
+- **[Weekly Priority]** — [what "done" or "moved forward" looks like today, grounded in project state]
+  - [NEXT_STEP from project-status, or first relevant Todoist task]
+  - [second supporting task if one exists and is clearly relevant]
 
-- **[Weekly Priority]** — ⚠️ No tasks in Todoist to move this forward today
-  → Review [[Projects/[Project Name]/PLAN.md]] or run /project-monitor to surface next steps
+- **[Weekly Priority]** — ⚠️ [stalled / no tasks / blocked — use STATUS + BLOCKERS from project-status]
+  - [NEXT_STEP from project-status if available, even if Todoist has nothing]
+  - [If NEXT_STEP is unavailable: → Run /project-status to surface next steps, or review [[Projects/[Project Name]/PLAN.md]]]
 
 ## Schedule
 
