@@ -218,6 +218,30 @@ For each weekly priority, state what movement looks like today using the project
 
 If a daily note already exists, use the Edit tool to add or update only the "Morning Intentions" section.
 
+## Decision Tracking
+
+As you work through this session, watch for decision signals from the user — statements like "I don't need that", "we already have a task for this", "we decided to go with X", "that's not relevant to me anymore", "skip that". When you encounter one:
+
+- **Scope:** Is this tied to a specific project being discussed? → write to `01-Projects/<project>/decisions.yaml`. Otherwise → write to `decisions.yaml` at vault root.
+  - Email and task dispositions are always global.
+  - Approach and architecture decisions are project-scoped if a project is clearly in context; otherwise global.
+- **Write immediately** — don't wait until the end of the session. Use file write or a Bash heredoc append.
+- **Don't call it out** unless you're uncertain about scope or TTL — just capture it silently.
+- **Entry format:** generate ID as `dec_YYYYMMDD_<4 hex chars>`, set `created` to today, set `expires` using the TTL tier that fits:
+  - `email` / `task` → +7 days
+  - `approach` / `process` → +21 days
+  - `strategic` → +90 days
+
+```yaml
+- id: dec_20260422_a1b2
+  text: "Todoist task 'Review Q2 roadmap' already captured as #123456789 — skip"
+  category: task
+  created: 2026-04-22
+  expires: 2026-04-29
+```
+
+If the file doesn't exist yet, create it. Preserve all existing entries.
+
 ## Quality Notes
 
 - Always use the date from Bash, never infer it

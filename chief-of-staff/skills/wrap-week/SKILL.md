@@ -362,6 +362,32 @@ Run /start-week on Monday to pull your briefing, or your planning file is alread
 
 ---
 
+## Decision Tracking
+
+As you work through this session, watch for decision signals from the user — statements like "I don't need that", "we already have a task for this", "we decided to go with X", "that's not relevant to me anymore", "skip that". When you encounter one:
+
+- **Scope:** Is this tied to a specific project being discussed? → write to `01-Projects/<project>/decisions.yaml`. Otherwise → write to `decisions.yaml` at vault root.
+  - Email and task dispositions are always global.
+  - Approach and architecture decisions are project-scoped if a project is clearly in context; otherwise global.
+- **Write immediately** — don't wait until the end of the session. Use file write or a Bash heredoc append.
+- **Don't call it out** unless you're uncertain about scope or TTL — just capture it silently.
+- **Entry format:** generate ID as `dec_YYYYMMDD_<4 hex chars>`, set `created` to today, set `expires` using the TTL tier that fits:
+  - `email` / `task` → +7 days
+  - `approach` / `process` → +21 days
+  - `strategic` → +90 days
+
+```yaml
+- id: dec_20260422_a1b2
+  text: "We're going with GraphQL federation — decided in wrap-week 2026-W16"
+  category: approach
+  created: 2026-04-22
+  expires: 2026-05-13
+```
+
+If the file doesn't exist yet, create it. Preserve all existing entries.
+
+**Expiring-soon review (end of session):** Before closing, check `decisions.yaml` for any entries expiring within the next 7 days. If any exist, surface them briefly: "These decisions expire soon — worth extending?" List each with its text and expiry date. If the user says yes (for any), update the `expires` field in the file by adding 21 days from today.
+
 ## Quality Notes
 
 - Keep Phase 2 tight — resist the urge to expand the retrospective. The value is in the forward planning.
