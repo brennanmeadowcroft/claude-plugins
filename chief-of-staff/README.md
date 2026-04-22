@@ -1,8 +1,15 @@
 # Chief of Staff
 
-AI-enabled orchestration layer for Claude Code. Five skills that keep you deliberate about your time and moving purposefully through each day and week — coordinating the `secretary`, `project-manager`, and `personal-context` plugins to give you a complete operating system.
+Your strategic operating layer for Claude Code. The chief of staff doesn't handle your calendar or draft your emails — that's the exec-assistant's job. The CoS protects your **priorities**: surfacing what matters, recommending where to focus, flagging patterns you can't see from inside the week, and making sure what you say is important actually gets treated that way.
 
-**The problem it solves:** Knowledge work is full of context-switching, accumulating commitments, and slow entropy — tasks slip, projects drift, and weeks end without a clear sense of what moved forward. Chief of Staff gives you a structured rhythm: open the week with intention, start each day with a real briefing, close the day cleanly, review the week honestly, and keep your projects and areas from drifting.
+A human chief of staff operates at the 90-day to annual horizon — setting the conditions for the work, not doing it. They come to conversations with a point of view. They tell you when something isn't working. They act as an honest broker between what you intend and what you're actually doing with your time.
+
+That's the posture this plugin takes:
+
+- **An EA protects your time.** The exec-assistant handles that — meetings, email, transcripts, logistics.
+- **A CoS protects your priorities.** That's this plugin — planning, pattern recognition, alignment, and strategic prep.
+
+The CoS doesn't replace your judgment. It does the synthesis so you can exercise judgment on what matters, not on what to look at first.
 
 ---
 
@@ -18,7 +25,7 @@ graph TD
 
     subgraph domain["Domain Plugins"]
         direction LR
-        subgraph sec["secretary"]
+        subgraph ea["exec-assistant"]
             MP[meeting-prep]
             PT[process-transcripts]
             AM[ask-meetings]
@@ -40,42 +47,67 @@ graph TD
         FD[finish-day]
         WW[wrap-week]
         AOR[aor-review]
+        MR[meeting-rehearsal]
     end
 
-    FD -- "/secretary:process-transcripts" --> PT
-    FD -- "/secretary:meeting-prep" --> MP
+    FD -- "/exec-assistant:process-transcripts" --> PT
+    FD -- "/exec-assistant:meeting-prep" --> MP
+    MR -- "/exec-assistant:meeting-prep" --> MP
     WW -- "/project-manager:project-monitor --summary" --> PMON
     SW -- "/project-manager:project-index" --> PI
+    SW -- "/aor-review --summary" --> AOR
     MP -- "/project-manager:project-index" --> PI
     PT -- "index-meeting-note" --> IMN
 
     cos -. "contacts / context" .-> PC
-    sec -. "contacts / context" .-> PC
+    ea -. "contacts / context" .-> PC
     pmgr -. "contacts / context" .-> PC
 ```
 
-**Dependency direction:**
-- `personal-context` is infrastructure — install it first, no dependencies on anything else
-- `secretary` and `project-manager` are domain plugins — each owns its own data and operations
-- `chief-of-staff` is the orchestration layer — calls into domain plugins, never the reverse
+**How the layers relate:**
+
+- `personal-context` is infrastructure — identity, preferences, and contacts used by everything else
+- `exec-assistant` is the EA layer — owns actions on meetings, email, and transcripts; runs logistics
+- `project-manager` is the project layer — owns project schemas, plans, and health monitoring
+- `chief-of-staff` is the strategic layer — reads from all of the above, coordinates them, but owns none of their data
+
+Both the CoS and the EA can read your calendar, tasks, and email directly from the MCP servers. Only the EA takes actions on them (scheduling, drafting, filing). The CoS reads to interpret and recommend; the EA reads to act. That's the separation.
 
 ---
 
 ## How the Skills Work Together
 
-The five CoS skills form a weekly operating cycle:
+The skills form a weekly operating rhythm — but the rhythm is a means, not an end. The point is that the CoS comes to each session with data already synthesized and a recommendation already formed, so your job is judgment and correction rather than assembly.
 
 ```
-Monday morning     → /start-week        Set 2–3 priorities, surface project deadlines, create the weekly file
-Each morning       → /start-day         Briefing: calendar, priority emails, weekly priorities, tasks, meeting notes
-Each evening       → /finish-day        Close out: email triage, brain dump, reschedule, prep tomorrow's meeting notes
-Throughout week    → /aor-review        Review area health, surface backlog patterns, suggest spinning up projects
-Friday afternoon   → /wrap-week         Recap this week, plan next week with priorities, create next week's file
+Monday morning     → /start-week        Recommends 2–3 weekly priorities based on deadlines, AOR health, and carry-forward.
+                                         You refine, not start from scratch. Surfaces a time audit against your calendar.
+
+Each morning       → /start-day         Leads with a focus recommendation: what to work on during which windows, and why.
+                                         Then surfaces the supporting context (email, tasks, meetings).
+
+Each evening       → /finish-day        Reviews the day, surfaces delegation candidates for the EA, reschedules what
+                                         didn't happen, preps tomorrow's meeting notes, processes today's transcripts.
+
+As needed          → /meeting-rehearsal  Strategic coaching before high-stakes meetings: outcome framing, objection
+                                         anticipation, weak spot identification. Reads the EA prep brief as input.
+
+As needed          → /think             Ad-hoc CoS conversation for any topic — trade-offs, prioritization, framing,
+                                         decisions. Loads week priorities and today's focus; can pull from project
+                                         research stores. Use when you want the CoS hat without a full workflow.
+
+Throughout week    → /aor-review        Reviews each Area of Responsibility for stagnation, overdue tasks, and patterns
+                                         that suggest a project needs to spin up. Runs silently inside /wrap-week.
+
+Friday afternoon   → /wrap-week         Reads the last 3–4 weekly recaps to surface cross-week patterns before planning.
+                                         Recommends next week's priorities. Recaps this week. Creates next week's file.
 ```
 
-The daily rhythm is the foundation: `/finish-day` each evening seeds the context that makes `/start-day` valuable the next morning. The weekly rhythm gives that daily context meaning — priorities set on Monday shape how you rank tasks and allocate focus all week.
+**The strategic layer in practice:** `/start-week` doesn't ask "what do you want to work on?" — it reads your projects, AOR health, and last week's recap and says "here's what I'd prioritize, here's why — what would you change?" `/wrap-week` doesn't just recap this week; it notices that the strategy doc has been on the list for four weeks without moving and says so. `/start-day` doesn't just list your meetings; it tells you which gap to use for priority #1 and surfaces the context from last week's 1:1 before you walk in.
 
-**Orchestration:** `/finish-day` automatically calls `/secretary:process-transcripts` and `/secretary:meeting-prep` so meeting notes are processed and tomorrow's prep is ready without an extra step. `/wrap-week` silently calls `/project-manager:project-monitor --summary` and `/aor-review --summary` to inform priority-setting.
+**What the CoS doesn't do:** It doesn't make decisions. It doesn't act on your calendar, inbox, or tasks — that's the exec-assistant. It surfaces, recommends, and surfaces patterns. You're still the decider. That's the right boundary for now, and it's where a human CoS earns trust before getting more authority: through demonstrated judgment over time.
+
+**Orchestration plumbing:** `/finish-day` automatically calls `/exec-assistant:process-transcripts` and `/exec-assistant:meeting-prep` so meeting notes are processed and tomorrow's prep is ready. `/wrap-week` silently calls `/project-manager:project-monitor --summary` and `/aor-review --summary` before priority-setting so it arrives with context, not questions. `/start-week` calls `/aor-review --summary` for the same reason.
 
 ---
 
@@ -129,11 +161,11 @@ If Gmail MCP is unavailable, both skills degrade gracefully and note that email 
 
 The `personal-context` plugin is a separate installation that provides contact resolution and personal preference files to all plugins. Install it independently — see the `personal-context` plugin README for setup instructions.
 
-### 5. Secretary and Project Manager
+### 5. Exec-Assistant and Project Manager
 
-`/finish-day` and `/wrap-week` call into the `secretary` and `project-manager` plugins. Install both for the full operating cycle:
+`/finish-day` and `/wrap-week` call into the `exec-assistant` and `project-manager` plugins. Install both for the full operating cycle:
 
-- `secretary` — meeting prep, transcript processing, meeting memory
+- `exec-assistant` — meeting prep, transcript processing, meeting memory, email prioritization
 - `project-manager` — project plans, health monitoring, project index
 
 ---
@@ -144,7 +176,7 @@ The chief of staff assumes a particular structure to the Obsidian vault based on
 
 ### CLAUDE.md Configuration
 
-Add a **Chief of Staff** section to your vault's `CLAUDE.md` to set persistent path defaults — no arguments needed on every invocation. All path-aware skills (across CoS, secretary, and project-manager plugins) read this block on startup.
+Add a **Chief of Staff** section to your vault's `CLAUDE.md` to set persistent path defaults — no arguments needed on every invocation. All path-aware skills (across CoS, exec-assistant, and project-manager plugins) read this block on startup.
 
 ```markdown
 ## Chief of Staff
@@ -157,9 +189,9 @@ Add a **Chief of Staff** section to your vault's `CLAUDE.md` to set persistent p
 
 | Key | Default | Used by |
 |-----|---------|---------|
-| `projects-path` | `01-Projects` | project-manager: `/new-project`, `/project-planner`, `/project-tracker`, `/project-index`, `/project-monitor`; secretary: `/meeting-prep` |
+| `projects-path` | `01-Projects` | project-manager: `/new-project`, `/project-planner`, `/project-tracker`, `/project-index`, `/project-monitor`; exec-assistant: `/meeting-prep` |
 | `daily-notes-path` | `02-AreasOfResponsibility/Daily Notes` | `/start-day`, `/finish-day`, `/wrap-week` |
-| `notes-path` | `02-AreasOfResponsibility/Notes` | `/start-day`, `/finish-day`; secretary: `/meeting-prep`, `/process-transcripts`; project-manager: `/project-monitor` |
+| `notes-path` | `02-AreasOfResponsibility/Notes` | `/start-day`, `/finish-day`; exec-assistant: `/meeting-prep`, `/process-transcripts`; project-manager: `/project-monitor` |
 | `weekly-recaps-path` | `02-AreasOfResponsibility/Weekly Recaps` | `/start-week`, `/start-day`, `/wrap-week` |
 | `areas-path` | `02-AreasOfResponsibility` | `/wrap-week`, `/aor-review` |
 
@@ -229,15 +261,17 @@ If connected with an MCP server, processing can be automatically triggered by pa
 
 ## Skills Reference
 
-These are the five skills that live in the chief-of-staff plugin. For meeting skills (`/meeting-prep`, `/process-transcripts`, `/ask-meetings`) see the `secretary` plugin. For project skills (`/project-planner`, `/project-monitor`, `/new-project`, etc.) see the `project-manager` plugin.
+These are the seven skills in the chief-of-staff plugin. For EA skills (`/meeting-prep`, `/process-transcripts`, `/email-prioritization`) see the `exec-assistant` plugin. For project skills (`/project-planner`, `/project-monitor`, `/new-project`) see the `project-manager` plugin.
 
-| Skill          | Description                                                                                                    | When to use                                          |
-| -------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `/start-week`  | Set 2–3 weekly priorities, surface project deadlines via project-manager, create weekly planning file          | Monday morning                                       |
-| `/start-day`   | Morning briefing with priority emails, weekly priorities, calendar, tasks, and meeting notes                   | Each morning before starting work                    |
-| `/finish-day`  | Day close-out: email triage, brain dump, reschedule tasks, process today's transcripts, prep tomorrow's notes  | Each evening before logging off                      |
-| `/wrap-week`   | Recap this week (1/3), plan next week with 2–3 priorities (2/3), creates next week's planning file             | Friday afternoon or Sunday evening                   |
-| `/aor-review`  | Review each Area of Responsibility — open task counts, age flags, suggest spinning up projects where warranted | On demand, or automatically (silently) by /wrap-week |
+| Skill                  | What the CoS does                                                                                                                                    | When to use                                            |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `/start-week`          | Reads projects, AOR health, and last week's recap — recommends 2–3 priority candidates with reasoning before asking you to set them. Audits calendar time against the priorities you choose. | Monday morning |
+| `/start-day`           | Leads with a focus recommendation: which window to use, what to work on, why. Then surfaces supporting context (email, tasks, meetings, meeting notes). | Each morning before starting work |
+| `/finish-day`          | Reviews the day, surfaces EA delegation candidates, reschedules incomplete tasks, triggers transcript processing, preps tomorrow's meeting notes.     | Each evening before logging off                        |
+| `/wrap-week`           | Reads 3–4 prior weekly recaps to surface cross-week patterns before you plan. Recommends next week's priorities. Recaps this week. Creates next week's file. | Friday afternoon or Sunday evening               |
+| `/aor-review`          | Reviews each Area of Responsibility for stagnation, task age, and clustering — surfaces areas that need attention or a project spun up.              | On demand mid-week; runs silently inside `/wrap-week`  |
+| `/meeting-rehearsal`   | Coaching before high-stakes meetings: frames your win condition, surfaces likely objections, identifies weak spots, synthesizes an opening strategy. Reads the EA prep brief as input. | Before important meetings; surfaced during `/start-week` |
+| `/think`               | Ad-hoc CoS conversation for any topic. Loads week priorities and today's focus context, then coaches through trade-offs, prioritization, framing, or decisions. Can draw on project research stores when evaluating options. | Any time you want the CoS hat without a full workflow |
 
 ### Arguments
 
@@ -263,22 +297,40 @@ These are the five skills that live in the chief-of-staff plugin. For meeting sk
 - `--areas-path <path>` — Override areas of responsibility root folder (default: `02-AreasOfResponsibility`)
 - `--summary` — Run in silent summary mode (no interaction, structured output only — used by `/wrap-week`)
 
+**`/meeting-rehearsal`**
+- `--meeting <name>` — Meeting name or partial match (e.g., `"1:1 with Alex"`)
+- `--date <YYYY-MM-DD>` — Meeting date (defaults to soonest upcoming match)
+- `--notes-path <path>` — Override meeting notes folder (default: `02-AreasOfResponsibility/Notes`)
+
+**`/think`**
+- Free text after the command: `/think how should I handle the reorg conversation`
+- `--topic <text>` — Explicit topic (alternative to free text)
+- `--project <name>` — Scope research queries to a specific project (otherwise inferred from priorities or conversation)
+- `--weekly-recaps-path <path>` — Override weekly recaps folder (default: `02-AreasOfResponsibility/Weekly Recaps`)
+- `--daily-notes-path <path>` — Override daily notes folder (default: `02-AreasOfResponsibility/Daily Notes`)
+
 ---
 
 ## Tips
 
-**Run the full cycle for the first two weeks.** The skills get meaningfully richer when they can read context from each other. `/start-day` reads the weekly priorities `/start-week` set. `/wrap-week` reads the daily notes `/start-day` and `/finish-day` wrote. The first week feels lighter; by week three it feels like a real operating system.
+**The system only pays off if you route through it.** If `/start-day` surfaces three priorities and you immediately react to whatever's loudest in your inbox, the CoS doesn't do its job. The architecture works when you treat the recommendations as a starting point, not background noise.
+
+**Run the full cycle for the first two weeks.** The skills compound. `/start-day` is better when it can read weekly priorities from `/start-week`. `/wrap-week` pattern recognition requires prior weekly recap files to exist. The first week feels lightweight; by week three it feels like a real operating system.
+
+**Accept the recommendation, then redirect.** The CoS comes with a point of view — candidate priorities, focus windows, objections to anticipate. You don't have to accept it. But engage with the recommendation rather than ignoring it. "No, here's why" teaches you something; just skipping it doesn't.
+
+**Cross-week patterns are the most valuable output.** Single-week observations are easy to dismiss. When `/wrap-week` says the same thing has been deferred three weeks running, that's a real signal. Either the item isn't as important as it seemed, or something is blocking it. Either answer is worth surfacing.
 
 **Daily note as a hub.** Keep meeting content in your long-running `Notes/` files. Daily notes link to those notes and capture your intentions and reflections — no duplication.
 
-**Todoist priority discipline.** The morning briefing ranks tasks by p1/p2. If everything is p1, the ranking loses meaning. Consider a personal rule: max 2–3 p1 tasks at any time.
+**Todoist priority discipline.** The morning briefing ranks tasks by p1/p2. If everything is p1, the ranking loses meaning. Consider a rule: max 2–3 p1 tasks at any time.
 
-**Calendar blocking.** Block deep-work time as private Google Calendar events. `/start-day` will include those blocks when suggesting focus windows, making the suggestion more useful.
+**Calendar blocking.** `/start-week` can create `[IT]` focus blocks on your calendar. `/start-day` treats them as dedicated windows and recommends work for each. The blocks are marked Free so they don't prevent meeting scheduling — they're a signal to yourself, not a hard hold.
 
-**Weekly recap as a personal changelog.** ISO week filenames (`2026-W13.md`) sort naturally and are easy to review during quarterly or annual reflections.
+**Weekly recaps as a personal changelog.** ISO week filenames (`2026-W13.md`) sort naturally and are readable months later. They're the primary input for cross-week pattern recognition in `/wrap-week`.
 
-**Run `/finish-day` before leaving for the day** — not after. The meeting note prep for tomorrow works best when done while context is fresh. It also triggers transcript processing for today's meetings automatically.
+**Run `/finish-day` before leaving, not after.** The meeting note prep for tomorrow works best while today's context is fresh. It also triggers transcript processing automatically — you don't have to remember.
 
-**`/aor-review` runs inside `/wrap-week` automatically.** You don't need to run it separately on Fridays — wrap-week invokes it silently and uses its output to inform priority-setting. Run it independently mid-week when you want a focused check-in without going through the full wrap-week flow.
+**`/aor-review` runs silently inside `/wrap-week`.** You don't need to run it separately on Fridays. Run it independently mid-week when you want a focused check-in on area health without going through the full wrap-week flow.
 
-**`/wrap-week` creates next week's file.** You'll start Monday with priorities and project context already written. `/start-week` is still useful if you want a more deliberate Monday planning session, but it's no longer required.
+**Use `/meeting-rehearsal` for anything where you'd normally just walk in.** The skill earns its keep on conversations where you have a clear agenda but haven't thought through what the other person's agenda might be, or where you know what you want to say but haven't pressure-tested it. The session takes 10–15 minutes and materially changes how you show up.

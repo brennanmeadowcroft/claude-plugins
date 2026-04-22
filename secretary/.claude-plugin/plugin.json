@@ -1,9 +1,0 @@
-{
-  "name": "secretary",
-  "version": "1.0.0",
-  "description": "Meeting lifecycle management — meeting prep, transcript processing, note indexing, and meeting memory queries. Owns the meeting memory vector store.",
-  "author": {
-    "name": "Brennan Meadowcroft"
-  },
-  "keywords": ["meetings", "transcripts", "notes", "memory", "calendar"]
-}

@@ -1,7 +1,7 @@
 {
   "name": "chief-of-staff",
-  "version": "2.0.0",
-  "description": "AI-enabled executive assistant — daily briefings, weekly planning, and end-of-day wrap-up. Orchestration layer that coordinates the secretary, project-manager, and personal-context plugins.",
+  "version": "2.2.0",
+  "description": "Strategic orchestration layer — daily briefings, weekly planning, and end-of-day wrap-up. Coordinates the exec-assistant, project-manager, and personal-context plugins.",
   "author": {
     "name": "Brennan Meadowcroft"
   },

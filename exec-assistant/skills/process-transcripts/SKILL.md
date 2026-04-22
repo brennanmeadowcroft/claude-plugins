@@ -131,7 +131,7 @@ If found → mark as **ad-hoc**.
 ### Step 4: No note found
 
 If neither search yields a result, skip this meeting and report:
-> "No meeting note found for '{Meeting Name}' — run /secretary:meeting-prep first to create the note."
+> "No meeting note found for '{Meeting Name}' — run /exec-assistant:meeting-prep first to create the note."
 
 ---
 
@@ -380,9 +380,9 @@ If `.meeting-memory/` exists at the vault root, index the processed note into th
 For each meeting processed in this run, assemble the JSON record and pipe it to the index script:
 
 ```bash
-python3.13 .claude/skills/index-meeting-note/scripts/save_meeting_note.py <<'EOF'
+python3.13 "${CLAUDE_PLUGIN_ROOT}/skills/index-meeting-note/scripts/save_meeting_note.py" <<'EOF'
 {
-  "content": "<full text of the note section just written>",
+  "content": "<full text of the transcript file read in Phase 3>",
   "date": "<YYYY-MM-DD meeting date>",
   "meeting_name": "<contact name for 1:1s, or meeting title>",
   "meeting_type": "<1:1 or meeting>",

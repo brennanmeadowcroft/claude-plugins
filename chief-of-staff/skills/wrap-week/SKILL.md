@@ -141,14 +141,22 @@ Record the full exchange in the recap file under `## Weekly Reflection`. Write i
 
 ## Phase 3: Silent Context Gathering
 
-Before priority-setting, invoke both sub-skills in summary mode. Do NOT prompt the user during this phase.
-
-Run in parallel:
+Before priority-setting, gather structured context without prompting the user. Run in parallel:
 
 - **`/project-manager:project-monitor --summary`** — returns a structured list of active projects with status, deadline, and flag notes
 - **`/aor-review --summary`** — returns a structured list of AORs with open task counts, oldest task age, and health flags
+- **Cross-week pattern read** — glob for the 4 most recent weekly recap files in the weekly recaps folder (sorted by filename descending, skip the current week's file). For each prior week file that exists, extract: `## Priorities This Week`, `## Intentions for Next Week`, `## Carried Forward`, and any `[pattern]`-labeled items from `## Daily Reflection Themes`. 
 
-Store both results internally for use in Phase 4. Do not display them to the user yet.
+Store all results internally for use in Phase 4. Do not display them to the user yet.
+
+**Cross-week signals to identify from the prior week files:**
+
+- **Recurring carried priorities** — any priority that appears in 2+ consecutive weeks' "Intentions for Next Week" or "Carried Forward" sections without being completed. Flag: "This has been on the list for N weeks."
+- **Neglected AORs** — any AOR appearing unflagged in recent weeks that now shows up in the aor-review summary. Or any AOR that never appears as a priority over 3+ weeks.
+- **Calendar saturation trend** — if "By the Numbers" meeting hours are available in prior weeks, note whether meeting load has been increasing.
+- **Recurring daily note patterns** — any `[pattern]` or `[watch]` theme that appeared across multiple weeks without a project or task addressing it.
+
+Store these cross-week signals as a separate list for Phase 4.
 
 ---
 
@@ -177,9 +185,14 @@ Present a structured summary of everything gathered:
 
 **Carried forward from this week:**
 [Top 3 overdue/unfinished items]
+
+**Cross-week patterns** (only if signals exist from Phase 3):
+[Surface each signal with context — e.g., "Strategy doc has appeared in 'Intentions for Next Week' for 4 consecutive weeks without completion — either it needs a project plan or it should be deprioritized." or "AOR [X] has had no priority assigned in 3 weeks — is this intentional?" or "Calendar load has trended up 3 weeks in a row — proactive time may be getting crowded out."]
 ```
 
 If the user passed `--focus`, surface it here: "You mentioned wanting to focus on [focus] — I'll factor that in."
+
+If cross-week patterns are present, name them explicitly before asking about next week's priorities — they're often the most useful signal because they're invisible from inside a single week. Don't bury them.
 
 Then explicitly ask: "Is there anything specific you want to make sure gets done next week, or a theme you want to emphasize?"
 
@@ -355,4 +368,6 @@ Run /start-week on Monday to pull your briefing, or your planning file is alread
 - Priority deep-dives should feel like a brief alignment conversation, not a planning marathon. One sentence of "done" is enough.
 - The next-week file should feel ready to use on Monday, not like a rough draft.
 - Don't surface every project and area in the priority candidates — curate to the most actionable 4–6. The user can volunteer others.
+- Cross-week patterns are often more valuable than single-week observations. If the same thing has been deferred 3+ weeks, say so explicitly — don't soften it.
+- If prior weekly recap files don't exist yet (first few weeks of usage), skip the cross-week section gracefully and note that patterns will emerge over time.
 - If a week had sparse data (few daily notes, light task history), be honest about that and lean on calendar + project state instead.

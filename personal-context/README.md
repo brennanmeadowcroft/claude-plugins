@@ -2,7 +2,7 @@
 
 Infrastructure MCP server for Claude Code plugins. Provides a structured contact directory and personal preference files — who you work with, how you communicate, your role and goals — so any plugin can consult "you" without knowing anything about each other.
 
-This is not a skill plugin. It exposes five MCP tools that other plugins (secretary, project-manager, chief-of-staff) call automatically during their workflows.
+This is not a skill plugin. It exposes five MCP tools that other plugins (exec-assistant, project-manager, chief-of-staff) call automatically during their workflows.
 
 ---
 
