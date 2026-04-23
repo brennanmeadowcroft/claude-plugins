@@ -53,9 +53,9 @@
       "description": "Executive assistant layer — meeting prep, transcript processing, meeting memory, email prioritization, and autonomous Todoist @claude task dispatch via exec-monitor"
     },
     {
-      "name": "thinking-partner",
-      "source": "./thinking-partner",
-      "description": "Thinking partner — guides content digestion into atomic Zettelkasten notes with connections, tagging, and Obsidian vault integration."
+      "name": "second-brain",
+      "source": "./second-brain",
+      "description": "Personal learning plugin — skills for assimilating content, building a Zettelkasten, and structured topic learning."
     }
   ]
 }

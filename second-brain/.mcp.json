@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "karakeep": {
+      "command": "op",
+      "args": [
+        "run",
+        "--env-file=${HOME}/.config/karakeep.env",
+        "--",
+        "npx",
+        "-y",
+        "@karakeep/mcp"
+      ]
+    }
+  }
+}
