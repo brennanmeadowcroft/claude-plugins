@@ -1,6 +1,6 @@
 {
   "name": "chief-of-staff",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Strategic orchestration layer — daily briefings, weekly planning, and end-of-day wrap-up. Coordinates the exec-assistant, project-manager, and personal-context plugins.",
   "author": {
     "name": "Brennan Meadowcroft"
