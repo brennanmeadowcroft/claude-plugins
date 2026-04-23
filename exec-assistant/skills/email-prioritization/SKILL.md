@@ -21,7 +21,19 @@ Label incoming Gmail messages with priority levels (p1–p5) and structured labe
 
 ## Behavior
 
-1. Call `mcp__personal-context__list_contacts` and collect all contacts whose record identifies them as an executive (e.g. `team: Executive`, `role: executive`, or an `is_executive: true` flag — use whatever field is present in the contact data). Build a list of their email addresses; this is your **executive sender list** used in the p1 rule below.
+1. Resolve the **executive sender list** (email addresses that always receive p1):
+
+   a. **Try personal-context MCP first:** Call `mcp__personal-context__list_contacts`. Collect all contacts whose record identifies them as an executive (e.g. `team: Executive`, `role: executive`, or `is_executive: true` — use whatever field is present).
+
+   b. **CLAUDE.md fallback:** If the MCP is unavailable or returns no results, read the project `CLAUDE.md` and look for an `## Email Prioritization` or `## Executives` config block. Use the email addresses listed there. Example block format:
+      ```
+      ## Email Prioritization
+      executives:
+        - ceo@example.com
+        - cto@example.com
+      ```
+
+   c. If neither source is available, proceed without an executive sender list (no addresses will match p1 on sender alone).
 
 2. Search Gmail inbox threads using the query `in:inbox AND NOT label:newsletters` with `pageSize: 20`.
 
