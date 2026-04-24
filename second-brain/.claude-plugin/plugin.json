@@ -1,0 +1,9 @@
+{
+  "name": "second-brain",
+  "version": "1.1.0",
+  "description": "Personal learning plugin — skills for assimilating content, building a Zettelkasten, and (soon) structured topic learning.",
+  "author": {
+    "name": "Brennan Meadowcroft"
+  },
+  "keywords": ["obsidian", "zettelkasten", "notes", "learning", "atomic-notes", "knowledge-management"]
+}

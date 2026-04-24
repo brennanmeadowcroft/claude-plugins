@@ -40,12 +40,7 @@
     {
       "name": "chief-of-staff",
       "source": "./chief-of-staff",
-      "description": "Orchestration layer — daily briefings, weekly planning, and end-of-day wrap-up. Coordinates secretary, project-manager, and personal-context plugins."
-    },
-    {
-      "name": "secretary",
-      "source": "./secretary",
-      "description": "Meeting lifecycle — prep, transcript processing, note indexing, and meeting memory queries. Owns the ChromaDB meeting memory store."
+      "description": "Strategic orchestration layer — daily briefings, weekly planning, and end-of-day wrap-up. Coordinates exec-assistant, project-manager, and personal-context plugins."
     },
     {
       "name": "project-manager",
@@ -55,7 +50,12 @@
     {
       "name": "exec-assistant",
       "source": "./exec-assistant",
-      "description": "Autonomous task monitor that polls Todoist for tasks labelled @claude and dispatches specialized agents to complete them"
+      "description": "Executive assistant layer — meeting prep, transcript processing, meeting memory, email prioritization, and autonomous Todoist @claude task dispatch via exec-monitor"
+    },
+    {
+      "name": "second-brain",
+      "source": "./second-brain",
+      "description": "Personal learning plugin — skills for assimilating content, building a Zettelkasten, and structured topic learning."
     }
   ]
 }

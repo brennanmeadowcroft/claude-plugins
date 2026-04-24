@@ -78,7 +78,7 @@ tags: [project_tag]
 
 The `description` field is injected into context by the project-index hook and read by `chief-of-staff` during planning sessions. Write it like a dense search snippet, not a polished summary.
 
-The `tags` field links meeting notes to projects — `/secretary:meeting-prep` and `/secretary:process-transcripts` use it to tag notes with the relevant project.
+The `tags` field links meeting notes to projects — `/exec-assistant:meeting-prep` and `/exec-assistant:process-transcripts` use it to tag notes with the relevant project.
 
 ---
 

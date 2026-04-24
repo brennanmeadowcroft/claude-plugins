@@ -1,3 +1,7 @@
 {
-  "hooks": {}
+  "hooks": {
+    "UserPromptSubmit": [
+      { "matcher": "", "command": "python3 ensure_meeting_memory.py" }
+    ]
+  }
 }

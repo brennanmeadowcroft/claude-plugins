@@ -131,6 +131,38 @@ Accept free-form input. For each item mentioned:
 
 If the user says nothing or skips, move on. Don't force it.
 
+## Phase 3.5: Delegation Review
+
+After the brain dump, look across what was gathered in Phases 1–3 and identify items suitable for background delegation via exec-monitor. These are **bucket-2 items** — work the EA can do while you review the result, not work that requires your judgment upfront.
+
+**Delegation candidates to surface:**
+
+- p1/p2 emails requiring a draft response (e.g., meeting reschedule requests, intro requests, status update replies, routine follow-ups where the content is clear from context)
+- Slack commitments where you owe someone a response and the drafting is the main work
+- Inbox tasks from the brain dump that are clearly "draft and send" in nature
+
+**Do NOT flag** for delegation: anything requiring strategic judgment, sensitive relationship dynamics, decisions only you can make, or creative work where you haven't yet determined the direction.
+
+If there are delegation candidates, surface them as a short list:
+
+> "These look like good candidates to route to the EA for drafting — you'd review the draft before it goes:
+>
+> 1. **Draft reply to [Sender] re: [Subject]** — [1-sentence context]
+> 2. **Draft follow-up to [Person] on [topic]** — [1-sentence context]
+>
+> Route them? [Yes, all] [Review each] [Skip]"
+
+For each item the user approves, create a Todoist task in `#Inbox` with:
+- **Title:** "Draft [action] — [Sender/Person] re: [topic]"
+- **Label:** `@claude` (so exec-monitor picks it up automatically)
+- **Description:** Include the email link (`https://mail.google.com/mail/u/0/#inbox/MESSAGE_ID` or search query), the desired action, and any relevant context (tone, key points to include). The more context, the better the draft.
+
+Confirm which tasks were created: "Queued for exec-monitor: [task names]. They'll be picked up on the next run."
+
+If nothing qualifies, skip this phase entirely — don't force it.
+
+---
+
 ## Phase 4: Day Review
 
 Present a brief, honest review:
@@ -172,14 +204,36 @@ A p1 task finished, a project milestone hit, or a day that ran particularly long
 
 ## Phase 5: Process Transcripts
 
-Run the `/secretary:process-transcripts` skill for today's meetings. Today's calendar events were already fetched in Phase 1 — pass that context so the skill does not need to re-fetch the calendar.
+Run the `/exec-assistant:process-transcripts` skill for today's meetings. Today's calendar events were already fetched in Phase 1 — pass that context so the skill does not need to re-fetch the calendar.
 
 The skill will:
 - Check `~/Nextcloud/Meeting Uploads/TODAY/` for transcript files matching today's meetings
 - Generate structured summaries and write them into the appropriate Obsidian notes
 - Create Todoist tasks in #Inbox for any action items
 
-After the skill completes (or if the user skips), continue to Phase 6.
+After the skill completes (or if the user skips), continue to Phase 5.5.
+
+## Phase 5.5: Update Project State
+
+After transcripts are processed, sync today's work back into the project plans.
+
+Invoke `/project-manager:update-project-state`, passing:
+
+- **Completed tasks** — the task names collected in Phase 1 (`find-completed-tasks`)
+- **Transcript summary** — the output from Phase 5 (`/exec-assistant:process-transcripts`)
+- **Brain dump items** — any project-relevant items the user mentioned in Phase 3 (decisions made, things finished, scope changes)
+
+The skill will:
+
+1. Match completed work against open PLAN.md tasks and propose what to mark done or remove
+2. Ask for a single confirmation round before writing any changes
+3. Detect if a phase just completed — and if the next phase has no task detail yet, surface that with suggested milestones and ask the user whether to plan now or defer
+
+If a phase-completion planning prompt appears, handle it in-flow: the user can invoke `/project-manager:project-planner` now, or defer. Either way, the skill returns a brief summary of changes before control passes back here.
+
+After the skill completes (or if the user skips — "no project updates today"), continue to Phase 6.
+
+---
 
 ## Phase 6: Reschedule Incomplete Tasks
 
@@ -213,7 +267,7 @@ This is what enables `/start-day` to find relevant meeting notes via date-string
 
 1. Call `list-events` for TOMORROW to get tomorrow's calendar events.
 
-2. For each calendar event, use the /secretary:meeting-prep skill to prep the notes. Provide the meeting name and the meeting date.
+2. For each calendar event, use the /exec-assistant:meeting-prep skill to prep the notes. Provide the meeting name and the meeting date.
 
    **d. All meetings get a note.** If a meeting has no note and the user declines to create one, note it explicitly: "Skipped note for '[Meeting Name]' — you'll need to create it manually if needed."
 
@@ -255,6 +309,30 @@ _Completed by /finish-day_
 ```
 
 Ask before writing: "Any thoughts on today to capture in your notes?" Include their response verbatim, or "—" if they skip.
+
+## Decision Tracking
+
+As you work through this session, watch for decision signals from the user — statements like "I don't need that", "we already have a task for this", "we decided to go with X", "that's not relevant to me anymore", "skip that". When you encounter one:
+
+- **Scope:** Is this tied to a specific project being discussed? → write to `01-Projects/<project>/decisions.yaml`. Otherwise → write to `decisions.yaml` at vault root.
+  - Email and task dispositions are always global.
+  - Approach and architecture decisions are project-scoped if a project is clearly in context; otherwise global.
+- **Write immediately** — don't wait until the end of the session. Use file write or a Bash heredoc append.
+- **Don't call it out** unless you're uncertain about scope or TTL — just capture it silently.
+- **Entry format:** generate ID as `dec_YYYYMMDD_<4 hex chars>`, set `created` to today, set `expires` using the TTL tier that fits:
+  - `email` / `task` → +7 days
+  - `approach` / `process` → +21 days
+  - `strategic` → +90 days
+
+```yaml
+- id: dec_20260422_a1b2
+  text: "Vendor RFP from Acme Corp is not relevant — not buying"
+  category: email
+  created: 2026-04-22
+  expires: 2026-04-29
+```
+
+If the file doesn't exist yet, create it. Preserve all existing entries.
 
 ## Quality Notes
 

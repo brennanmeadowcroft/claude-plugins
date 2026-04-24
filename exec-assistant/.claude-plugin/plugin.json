@@ -1,7 +1,7 @@
 {
   "name": "exec-assistant",
-  "version": "1.3.0",
-  "description": "Autonomous task monitor — polls Todoist for tasks labelled @claude and dispatches specialized agents to complete them.",
+  "version": "2.1.0",
+  "description": "Executive assistant layer — meeting prep, transcript processing, meeting memory, email prioritization, and autonomous Todoist @claude task dispatch.",
   "author": {
     "name": "Brennan Meadowcroft"
   },

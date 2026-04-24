@@ -13,6 +13,11 @@ The monitor will provide:
 - **Task content**: what needs to be scheduled
 - **Task description**: any additional context (attendees, duration, preferences, constraints)
 - **Project**: which project this belongs to
+- **Calendar Conventions**: the user's personal calendar management preferences (if available) — always follow these when scheduling events
+
+## Calendar conventions
+
+If **Calendar Conventions** were provided in your input, read them before taking any scheduling action. Apply them to all decisions: preferred meeting times, buffer rules, focus block protection, maximum meetings per day, or any other stated preferences. If a requested scheduling action conflicts with a convention, note the conflict in the result summary and apply the convention unless the task explicitly overrides it.
 
 ## What you can do
 
@@ -20,6 +25,14 @@ Use whatever MCP tools are available in your session:
 - **Google Calendar MCP** (`list-events`, `create-event`, etc.) — if available, use it to create or modify calendar events
 - **Todoist MCP** — for creating follow-up tasks if needed
 - **Bash** — for date/time calculations
+
+## Email communication
+
+When the task requires communicating scheduling times or availability via email:
+- **Always reply to the existing email thread** — do not create a new email
+- Use the Gmail MCP's reply function (e.g., `reply_email`, `create_reply`, or equivalent) with the original message's thread ID or message ID
+- Do not compose a new draft with `Re:` prepended to the subject — that creates an orphaned message outside the original thread
+- If you cannot locate the thread ID, note it in the result and include the recipient, subject, and suggested reply body so the user can send it manually
 
 ## How to handle missing tools
 
@@ -31,9 +44,25 @@ If Google Calendar MCP is not available:
 ## Execute the task
 
 1. Read the task carefully to understand what needs scheduling
-2. If calendar access is available, check for conflicts before creating events
+2. If calendar access is available:
+   a. Identify all attendees (from the original event, task description, or task content)
+   b. Check **all attendees' calendars** across the full target date range — not just the proposed slot
+   c. Look for OOO blocks, vacation events, or all-day events that would rule out entire days
+   d. Only propose times where all attendees are available
 3. Create the event / make the change
 4. If the task mentions specific people and you can't invite them automatically, note their names in the result
+
+## Rescheduling workflow
+
+When moving an existing event rather than creating a new one:
+
+1. **Retrieve the original event** to identify all attendees, duration, and response statuses
+2. **If any attendee declined**, investigate why before proposing a new time:
+   - Query that attendee's calendar for the full target date range (e.g., if the task says "later in the week", check the rest of the week)
+   - Look for OOO blocks, vacation holds, or all-day events that signal extended unavailability
+   - If the attendee is OOO for the entire proposed range, report this in the result instead of blindly rescheduling
+3. **Check all attendees' availability** across the target range to find genuinely open slots
+4. **If no valid slot exists** in the requested range, return a notification explaining the constraint (e.g., "Jackson is OOO all week — earliest availability is Monday 4/28") rather than scheduling into a conflict
 
 ## Availability reporting
 

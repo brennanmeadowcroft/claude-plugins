@@ -112,6 +112,14 @@ If no voice/communication-style topic exists, set `voice_context` to `null` and 
 
 ---
 
+## Phase 3.85 — Load calendar conventions
+
+Reuse the context topics list from Phase 3.8. Look for a topic related to calendar management or scheduling preferences (e.g., `calendar-conventions`, `calendar-preferences`, `scheduling-conventions`, `scheduling-preferences`). If one is found, call `mcp__personal-context__get_context_file` with that topic name and store the result as `calendar_conventions`.
+
+If no calendar conventions topic exists, set `calendar_conventions` to `null` and proceed — this step is best-effort.
+
+---
+
 ## Phase 4 — Select and dispatch agents
 
 For each claimed task, determine which agent to use:
@@ -148,6 +156,7 @@ Labels: {task.labels}
 RAPID Required: {rapid_required | false}
 RAPID Template: {rapid_template_content | ""}
 User Voice Context: {voice_context | ""}
+Calendar Conventions: {calendar_conventions | ""}
 
 Complete this task and return a JSON result in this exact format:
 {

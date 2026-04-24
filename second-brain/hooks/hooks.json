@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/ensure_meeting_memory.py\""
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/check_setup.sh\""
           }
         ]
       }
