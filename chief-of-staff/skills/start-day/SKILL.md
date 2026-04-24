@@ -67,9 +67,9 @@ Run all of these in parallel:
 
 **Todoist — process tasks:** Call `find-tasks` filtered to label `@Process_Task`. Capture name, project, priority (p1–p4), and due date. These are tasks where someone is waiting on you for a decision, approval, or response.
 
-**Gmail — priority emails:** Call the Gmail MCP server to search for unread emails with high-priority labels. Use the query:
+**Gmail — priority emails:** Call the Gmail MCP server to search for emails with high-priority labels. Use the query:
 ```
-label:Priority/p1 OR label:Priority/p2 is:unread
+label:Priority/p1 OR label:Priority/p2
 ```
 (Adjust the exact tool name and query format to match your Gmail MCP server. Common tool names: `search_emails`, `list_messages`, `query_emails`.) For each email capture: subject, sender, date received, and any visible snippet or body. If Gmail MCP is unavailable, skip and note it.
 
